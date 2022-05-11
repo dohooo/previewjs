@@ -39,6 +39,7 @@ export const load: RendererLoader = async ({
     return {
       key: variant.key,
       label: variant.label,
+      props: variant.props,
       isEditorDriven: variant.isEditorDriven,
       render: async (defaultProps, props) => {
         await render(ComponentRenderer, {
@@ -67,6 +68,7 @@ export const load: RendererLoader = async ({
           return {
             key,
             label: key,
+            props: (value as any).args || {},
             isEditorDriven: false,
             render: async (defaultProps, props) => {
               await render(StoryRenderer, {

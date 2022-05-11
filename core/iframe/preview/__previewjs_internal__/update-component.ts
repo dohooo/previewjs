@@ -1,5 +1,6 @@
 import { RendererLoader } from "../..";
 import { sendMessageFromPreview } from "./messages";
+import { serialize } from "./serializer";
 import { getState } from "./state";
 
 export async function updateComponent({
@@ -61,7 +62,9 @@ export async function updateComponent({
     eval(`
       defaultProps = ${currentState.defaultPropsSource};
       `);
-    let properties = {};
+    let properties = {
+      title: "Overriding!",
+    };
     if (variant.key === "custom") {
       eval(`
         ${currentState.customVariantPropsSource};
@@ -73,7 +76,10 @@ export async function updateComponent({
       componentName,
       variantKey: variant.key,
       // Note: we must remove `render` since it may not be serialisable.
-      variants: variants.map(({ render, ...rest }) => rest),
+      variants: variants.map(({ render, props, ...rest }) => ({
+        props: serialize(props || {}),
+        ...rest,
+      })),
       loadingError,
     });
     await variant.render(defaultProps, properties);

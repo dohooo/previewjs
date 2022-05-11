@@ -1,6 +1,6 @@
 import { faCode, IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { observer } from "mobx-react-lite";
-import React, {ForwardedRef, forwardRef} from "react";
+import React, { ForwardedRef, forwardRef } from "react";
 import { Pill } from "../../design/Pill";
 import { PreviewState } from "../../PreviewState";
 
@@ -26,14 +26,7 @@ export const Selection = observer(
           icon={icon}
           label={state.component.name}
           loading={!state.component.details?.variants}
-          buttons={
-            state.component.details?.variants?.filter(
-              (v) => !v.isEditorDriven
-            ) || undefined
-          }
-          selectedButtonKey={state.component.variantKey}
           onClick={() => state.setVariant("custom")}
-          onButtonClicked={state.setVariant.bind(state)}
         />
       );
     }

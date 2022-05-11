@@ -240,6 +240,8 @@ export type LogLevel = "log" | "info" | "warn" | "error";
 export interface Variant {
   key: string;
   label: string;
+  // TODO: Ensure we pass some information about unserialisable values such as functions.
+  props: any;
   isEditorDriven?: boolean;
 }
 

@@ -15,6 +15,7 @@ import { Link } from "../../design/Link";
 import { PropsEditor } from "../../design/PropsEditor";
 import { SmallLogo } from "../../design/SmallLogo";
 import { PanelTab, TabbedPanel } from "../../design/TabbedPanel";
+import { VariantPicker } from "../../design/VariantPicker";
 import { PreviewState } from "../../PreviewState";
 import { ActionLogs } from "../ActionLogs";
 import { ConsolePanel } from "../ConsolePanel";
@@ -122,8 +123,7 @@ export const Preview = observer(
         <TabbedPanel
           defaultTabKey="props"
           tabs={[
-            ...(state.component?.variantKey === null ||
-            state.component?.variantKey === "custom"
+            ...(state.component
               ? [
                   {
                     label: "Properties",
@@ -131,23 +131,37 @@ export const Preview = observer(
                     icon: faCode,
                     notificationCount: 0,
                     panel: (
-                      <PropsEditor
-                        documentId={state.component.componentId}
-                        height={height}
-                        width={width}
-                        onUpdate={state.updateProps.bind(state)}
-                        onReset={
-                          state.component?.details &&
-                          state.component.details.invocation !==
-                            state.component.details.defaultInvocation
-                            ? state.resetProps.bind(state)
-                            : undefined
-                        }
-                        source={state.component.details?.invocation}
-                        typeDeclarationsSource={
-                          state.component.details?.typeDeclarations
-                        }
-                      />
+                      <VariantPicker
+                        variants={state.component.details?.variants || []}
+                        currentVariant={state.component.variantKey}
+                        onVariantSelected={(key) => state.setVariant(key)}
+                      >
+                        {state.component.variantKey === "custom" ? (
+                          <PropsEditor
+                            documentId={state.component.componentId}
+                            onUpdate={state.updateProps.bind(state)}
+                            onReset={
+                              state.component?.details &&
+                              state.component.details.invocation !==
+                                state.component.details.defaultInvocation
+                                ? state.resetProps.bind(state)
+                                : undefined
+                            }
+                            source={state.component.details?.invocation}
+                            typeDeclarationsSource={
+                              state.component.details?.typeDeclarations
+                            }
+                          />
+                        ) : (
+                          <pre>
+                            {JSON.stringify(
+                              state.component.details?.variants?.find(
+                                (v) => v.key === state.component?.variantKey
+                              )?.props
+                            )}
+                          </pre>
+                        )}
+                      </VariantPicker>
                     ),
                   },
                 ]
