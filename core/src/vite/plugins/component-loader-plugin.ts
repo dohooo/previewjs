@@ -1,8 +1,11 @@
 import type { PreviewConfig } from "@previewjs/config";
+import fs from "fs-extra";
+import path from "path";
 import { URLSearchParams } from "url";
 import type { Plugin } from "vite";
 
 const COMPONENT_LOADER_MODULE = "/@component-loader.js";
+const PREVIEW_POSSIBLE_EXTENSIONS = new Set([".js", ".jsx", ".ts", ".tsx"]);
 
 export function componentLoaderPlugin(options: {
   config: PreviewConfig;
@@ -20,24 +23,51 @@ export function componentLoaderPlugin(options: {
         return null;
       }
       const params = new URLSearchParams(id.split("?")[1] || "");
-      return generateComponentLoaderModule(params, options.config.wrapper);
+      const filePath = params.get("p");
+      const componentName = params.get("c");
+      if (filePath === null || componentName === null) {
+        throw new Error(`Invalid use of /@component-loader.js module`);
+      }
+      const ext = path.extname(filePath);
+      const filePathWithoutExt = filePath.substring(
+        0,
+        filePath.length - ext.length
+      );
+      const componentModuleId = `/${filePathWithoutExt.replace(/\\/g, "/")}`;
+      let previewModuleId: string | null = null;
+      for (const ext of PREVIEW_POSSIBLE_EXTENSIONS) {
+        if (await fs.pathExists(filePathWithoutExt + ".preview" + ext)) {
+          previewModuleId = componentModuleId + ".preview";
+          break;
+        }
+      }
+      return generateComponentLoaderModule({
+        filePath,
+        componentName,
+        componentModuleId,
+        previewModuleId,
+        wrapper: options.config.wrapper || null,
+      });
     },
   };
 }
 
-function generateComponentLoaderModule(
-  urlParams: URLSearchParams,
-  wrapper?: {
+function generateComponentLoaderModule({
+  filePath,
+  componentName,
+  componentModuleId,
+  previewModuleId,
+  wrapper,
+}: {
+  filePath: string;
+  componentName: string;
+  componentModuleId: string;
+  previewModuleId: string | null;
+  wrapper: {
     path: string;
     componentName?: string;
-  }
-): string {
-  const filePath = urlParams.get("p");
-  const componentName = urlParams.get("c");
-  if (filePath === null || componentName === null) {
-    throw new Error(`Invalid use of /@component-loader.js module`);
-  }
-  const componentModuleId = `/${filePath.replace(/\\/g, "/")}`;
+  } | null;
+}): string {
   return `import { updateComponent } from '/__previewjs_internal__/update-component';
 import { load } from '/__previewjs_internal__/renderer/index';
 
@@ -64,6 +94,25 @@ export async function refresh() {
   const wrapperModule = null;
   `
   }
+  ${
+    previewModuleId
+      ? `
+  let previewModulePromise;
+  if (import.meta.hot.data.preloadedPreviewModule) {
+    previewModulePromise = Promise.resolve(import.meta.hot.data.preloadedPreviewModule);
+  } else {
+    previewModulePromise = import("${previewModuleId}");
+  }
+  const previewModule = await previewModulePromise.catch(e => {
+    console.error(e);
+    loadingError = e.stack || e.message || null;
+    return null;
+  });
+  `
+      : `
+  const previewModule = null;
+  `
+  }
   let componentModulePromise;
   if (import.meta.hot.data.preloadedComponentModule) {
     componentModulePromise = Promise.resolve(import.meta.hot.data.preloadedComponentModule);
@@ -82,6 +131,7 @@ export async function refresh() {
   await updateComponent({
     wrapperModule,
     wrapperName: ${JSON.stringify(wrapper?.componentName || null)},
+    previewModule,
     componentModule,
     componentFilePath: ${JSON.stringify(filePath)},
     componentName: ${JSON.stringify(componentName)},
@@ -103,6 +153,16 @@ import.meta.hot.accept(["${wrapper.path}"], ([wrapperModule]) => {
     : ``
 }
 
+${
+  previewModuleId
+    ? `
+import.meta.hot.accept(["${previewModuleId}"], ([previewModule]) => {
+  import.meta.hot.data.preloadedPreviewModule = previewModule;
+  refresh();
+});
+`
+    : ``
+}
 import.meta.hot.accept(["${componentModuleId}"], ([componentModule]) => {
   import.meta.hot.data.preloadedComponentModule = componentModule;
   refresh();

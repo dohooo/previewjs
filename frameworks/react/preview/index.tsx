@@ -43,6 +43,7 @@ export const load: RendererLoader = async ({
     );
   };
   return {
+    component: Component,
     variants,
     render: async (props) => {
       const { render } = await import(/* @vite-ignore */ moduleName);

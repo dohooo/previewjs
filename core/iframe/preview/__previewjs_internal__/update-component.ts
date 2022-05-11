@@ -5,6 +5,7 @@ import { getState } from "./state";
 export async function updateComponent({
   wrapperModule,
   wrapperName,
+  previewModule,
   componentModule,
   componentFilePath,
   componentName,
@@ -13,6 +14,7 @@ export async function updateComponent({
 }: {
   wrapperModule: any;
   wrapperName: string;
+  previewModule: any;
   componentModule: any;
   componentFilePath: string;
   componentName: string;
@@ -34,13 +36,34 @@ export async function updateComponent({
     sendMessageFromPreview({
       kind: "before-render",
     });
-    const { variants, render } = await load({
+    const { component, variants, render } = await load({
       wrapperModule,
       wrapperName,
       componentFilePath,
       componentModule,
       componentName,
     });
+    if (previewModule) {
+      for (const [key, value] of Object.entries(previewModule)) {
+        if (
+          key === "default" ||
+          key.startsWith("__previewjs__") ||
+          !value ||
+          typeof value !== "object"
+        ) {
+          continue;
+        }
+        const variant = value as any;
+        if (variant.component !== component) {
+          continue;
+        }
+        variants.push({
+          key,
+          label: variant.name || key,
+          props: variant.args || {},
+        });
+      }
+    }
     variants.push({
       key: "custom",
       label: componentName,

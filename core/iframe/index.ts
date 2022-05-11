@@ -250,6 +250,7 @@ export type RendererLoader = (options: {
   componentModule: any;
   componentName?: string;
 }) => Promise<{
+  component: any;
   variants: Array<
     Variant & {
       props?: any;
