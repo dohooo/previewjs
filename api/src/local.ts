@@ -1,3 +1,4 @@
+import { CollectedTypes, ValueType } from "@previewjs/type-analyzer";
 import { Endpoint } from "./endpoint";
 import { PersistedState } from "./persisted-state";
 
@@ -32,6 +33,9 @@ export const ComputeProps: Endpoint<
 };
 
 export interface PreviewSources {
+  propsType: ValueType;
+  types: CollectedTypes;
+  // TODO: Generate some of these fields client-side?
   typeDeclarationsSource: string;
   defaultPropsSource: string;
   defaultInvocationSource: string;

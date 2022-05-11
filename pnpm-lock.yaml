@@ -36,8 +36,11 @@ importers:
 
   api:
     specifiers:
+      '@previewjs/type-analyzer': workspace:^2.1.0
       rimraf: 3.0.2
       typescript: 4.6.4
+    dependencies:
+      '@previewjs/type-analyzer': link:../type-analyzer
     devDependencies:
       rimraf: 3.0.2
       typescript: 4.6.4
@@ -58,6 +61,7 @@ importers:
       '@previewjs/plugin-solid': workspace:*
       '@previewjs/plugin-vue2': workspace:*
       '@previewjs/plugin-vue3': workspace:*
+      '@previewjs/type-analyzer': workspace:^2.1.0
       '@previewjs/vfs': ^1.1.4
       '@react-hook/window-size': 3.0.7
       '@types/express': 4.17.13
@@ -115,6 +119,7 @@ importers:
       '@previewjs/plugin-solid': link:../frameworks/solid
       '@previewjs/plugin-vue2': link:../frameworks/vue2
       '@previewjs/plugin-vue3': link:../frameworks/vue3
+      '@previewjs/type-analyzer': link:../type-analyzer
       '@react-hook/window-size': 3.0.7_react@18.1.0
       '@types/express': 4.17.13
       '@types/fs-extra': 9.0.13
