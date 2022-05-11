@@ -252,8 +252,7 @@ export type RendererLoader = (options: {
 }) => Promise<{
   variants: Array<
     Variant & {
-      props?: any;
+      render: (defaultProps: any, props: any) => Promise<void>;
     }
   >;
-  render: (props: any) => Promise<void>;
 }>;

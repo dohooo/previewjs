@@ -25,13 +25,6 @@ export const load: RendererLoader = async ({
     ...(Component.decorators || []),
     ...(componentModule.default?.decorators || []),
   ];
-  const variants = (Component.__previewjs_variants || []).map((variant) => {
-    return {
-      key: variant.key,
-      label: variant.label,
-      props: variant.props,
-    };
-  });
   const Renderer = (props) => {
     return (
       <Wrapper>
@@ -42,12 +35,30 @@ export const load: RendererLoader = async ({
       </Wrapper>
     );
   };
+  const variants = [
+    ...Component.__previewjs_variants,
+    {
+      key: "custom",
+      label: componentName,
+      isEditorDriven: true,
+    },
+  ].map((variant) => {
+    return {
+      key: variant.key,
+      label: variant.label,
+      isEditorDriven: variant.isEditorDriven,
+      render: async (defaultProps, props) => {
+        const { render } = await import(/* @vite-ignore */ moduleName);
+        await render(Renderer, {
+          ...defaultProps,
+          ...variant.props,
+          ...props,
+        });
+      },
+    };
+  });
   return {
     variants,
-    render: async (props) => {
-      const { render } = await import(/* @vite-ignore */ moduleName);
-      await render(Renderer, props);
-    },
   };
 };
 

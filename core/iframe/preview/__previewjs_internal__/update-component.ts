@@ -34,18 +34,12 @@ export async function updateComponent({
     sendMessageFromPreview({
       kind: "before-render",
     });
-    const { variants, render } = await load({
+    const { variants } = await load({
       wrapperModule,
       wrapperName,
       componentFilePath,
       componentModule,
       componentName,
-    });
-    variants.push({
-      key: "custom",
-      label: componentName,
-      props: {},
-      isEditorDriven: true,
     });
     const variant =
       variants.find((v) => v.key === currentState.variantKey) || variants[0];
@@ -64,11 +58,10 @@ export async function updateComponent({
     eval(`
       defaultProps = ${currentState.defaultPropsSource};
       `);
+    let properties = {};
     if (variant.key === "custom") {
       eval(`
-        let properties = {};
         ${currentState.customVariantPropsSource};
-        variant.props = properties;
         `);
     }
     sendMessageFromPreview({
@@ -76,14 +69,11 @@ export async function updateComponent({
       filePath: componentFilePath,
       componentName,
       variantKey: variant.key,
-      // Note: we must remove `props` since it may not be serialisable.
-      variants: variants.map(({ props, ...rest }) => rest),
+      // Note: we must remove `render` since it may not be serialisable.
+      variants: variants.map(({ render, ...rest }) => rest),
       loadingError,
     });
-    await render({
-      ...defaultProps,
-      ...variant.props,
-    });
+    await variant.render(defaultProps, properties);
   } catch (error: any) {
     sendMessageFromPreview({
       kind: "rendering-error",
