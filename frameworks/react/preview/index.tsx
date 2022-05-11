@@ -29,7 +29,7 @@ export const load: RendererLoader = async ({
   );
   const { render } = await import(/* @vite-ignore */ moduleName);
   const variants = [
-    ...ComponentOrStory.__previewjs_variants,
+    ...(ComponentOrStory.__previewjs_variants || []),
     {
       key: "custom",
       label: componentName,
