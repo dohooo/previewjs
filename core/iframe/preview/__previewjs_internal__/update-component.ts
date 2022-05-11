@@ -5,6 +5,7 @@ import { getState } from "./state";
 export async function updateComponent({
   wrapperModule,
   wrapperName,
+  storiesModule,
   componentModule,
   componentFilePath,
   componentName,
@@ -13,6 +14,7 @@ export async function updateComponent({
 }: {
   wrapperModule: any;
   wrapperName: string;
+  storiesModule: any;
   componentModule: any;
   componentFilePath: string;
   componentName: string;
@@ -37,6 +39,7 @@ export async function updateComponent({
     const { variants } = await load({
       wrapperModule,
       wrapperName,
+      storiesModule,
       componentFilePath,
       componentModule,
       componentName,

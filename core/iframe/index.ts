@@ -246,6 +246,7 @@ export interface Variant {
 export type RendererLoader = (options: {
   wrapperModule: any;
   wrapperName?: string;
+  storiesModule: any;
   componentFilePath: string;
   componentModule: any;
   componentName?: string;
