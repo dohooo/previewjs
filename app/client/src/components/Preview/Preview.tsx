@@ -5,6 +5,7 @@ import {
   faTerminal,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { UNKNOWN_TYPE } from "@previewjs/type-analyzer";
 import { useWindowSize } from "@react-hook/window-size";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -12,9 +13,9 @@ import { decodeComponentId } from "../../component-id";
 import { FilePath } from "../../design/FilePath";
 import { Header } from "../../design/Header";
 import { Link } from "../../design/Link";
-import { PropsEditor } from "../../design/PropsEditor";
 import { SmallLogo } from "../../design/SmallLogo";
 import { PanelTab, TabbedPanel } from "../../design/TabbedPanel";
+import { ValueEditor } from "../../design/ValueEditor";
 import { VariantPicker } from "../../design/VariantPicker";
 import { PreviewState } from "../../PreviewState";
 import { ActionLogs } from "../ActionLogs";
@@ -137,20 +138,11 @@ export const Preview = observer(
                         onVariantSelected={(key) => state.setVariant(key)}
                       >
                         {state.component.variantKey === "custom" ? (
-                          <PropsEditor
-                            documentId={state.component.componentId}
-                            onUpdate={state.updateProps.bind(state)}
-                            onReset={
-                              state.component?.details &&
-                              state.component.details.invocation !==
-                                state.component.details.defaultInvocation
-                                ? state.resetProps.bind(state)
-                                : undefined
+                          <ValueEditor
+                            type={
+                              state.component.details?.propsType || UNKNOWN_TYPE
                             }
-                            source={state.component.details?.invocation}
-                            typeDeclarationsSource={
-                              state.component.details?.typeDeclarations
-                            }
+                            types={state.component.details?.types || {}}
                           />
                         ) : (
                           <pre>

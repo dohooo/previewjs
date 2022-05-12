@@ -4,6 +4,11 @@ import {
   PreviewIframeController,
   Variant,
 } from "@previewjs/core/controller";
+import {
+  CollectedTypes,
+  UNKNOWN_TYPE,
+  ValueType,
+} from "@previewjs/type-analyzer";
 import assertNever from "assert-never";
 import { makeAutoObservable, observable, runInAction } from "mobx";
 import { LocalApi } from "./api/local";
@@ -84,6 +89,10 @@ export class PreviewState {
        * specifically when the user has edited the props editor.
        */
       invocation: string;
+
+      // TODO: Document.
+      propsType: ValueType;
+      types: CollectedTypes;
 
       /**
        * Type declarations used by the props editor to offer better autocomplete and type checking.
@@ -332,6 +341,8 @@ export class PreviewState {
             invocation: invocation,
             typeDeclarations:
               sources?.typeDeclarationsSource || `declare let properties: any;`,
+            propsType: sources?.propsType || UNKNOWN_TYPE,
+            types: sources?.types || {},
           },
         };
       });

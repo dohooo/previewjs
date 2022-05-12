@@ -30,6 +30,6 @@ export const VariantPicker = ({
         </li>
       ))}
     </ul>
-    <div className="col-span-3">{children}</div>
+    <div className="col-span-3 self-stretch bg-white">{children}</div>
   </div>
 );
