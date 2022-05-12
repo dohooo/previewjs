@@ -49,7 +49,7 @@ export const ValueEditor = ({
     case "never":
       return <NeverEditor />;
     case "node":
-      throw new Error("not implemented");
+      return <StringEditor />;
     case "null":
       return <Constant label="null" />;
     case "number":
@@ -57,7 +57,12 @@ export const ValueEditor = ({
     case "object":
       return <ObjectEditor type={type} types={types} />;
     case "optional":
-      throw new Error("not implemented");
+      return (
+        <UnionEditor
+          type={{ kind: "union", types: [{ kind: "void" }, type.type] }}
+          types={types}
+        />
+      );
     case "promise":
       return <PromiseEditor type={type} types={types} />;
     case "record":
