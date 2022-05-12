@@ -24,6 +24,8 @@ export async function computeProps({
     result.types
   );
   return {
+    propsType: result.propsType,
+    types: result.types,
     typeDeclarationsSource,
     defaultPropsSource,
     defaultInvocationSource,

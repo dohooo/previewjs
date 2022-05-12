@@ -4,16 +4,18 @@ import {
   FunctionType,
   LiteralType,
   ObjectType,
+  UnionType,
   ValueType,
 } from "@previewjs/type-analyzer";
 import assertNever from "assert-never";
 import clsx from "clsx";
 import React, { Fragment, useState } from "react";
+import TextAreaAutosize from "react-textarea-autosize";
 
 export const ValueEditor = ({ type }: { type: ValueType }) => {
   switch (type.kind) {
     case "any":
-      throw new Error("not implemented");
+      return <AnyEditor />;
     case "array":
       return <ArrayEditor type={type} />;
     case "boolean":
@@ -51,15 +53,17 @@ export const ValueEditor = ({ type }: { type: ValueType }) => {
     case "string":
       return <StringEditor />;
     case "union":
-      throw new Error("not implemented");
+      return <UnionEditor type={type} />;
     case "unknown":
-      throw new Error("not implemented");
+      return <UnknownEditor />;
     case "void":
       return <Constant label="undefined" />;
     default:
       throw assertNever(type);
   }
 };
+
+const AnyEditor = () => <Unknown label="Any type" />;
 
 const ArrayEditor = ({ type }: { type: ArrayType }) => {
   const [items, setItems] = useState<any[]>([]);
@@ -220,4 +224,87 @@ const ObjectFieldEditor = ({
 
 const StringEditor = () => (
   <input type="text" value="test" className="block w-full outline-none" />
+);
+
+const UnionEditor = ({ type }: { type: UnionType }) => {
+  const [typeIndex, setTypeIndex] = useState(0);
+  return (
+    <div>
+      <select
+        className="appearance-none w-full bg-white p-1.5 rounded-md outline-none border-2 border-gray-200 mb-2"
+        onChange={(e) => setTypeIndex(parseInt(e.target.value))}
+      >
+        {type.types.map((type, i) => (
+          <option key={i} value={i}>
+            {shortDescription(type)}
+          </option>
+        ))}
+      </select>
+      <ValueEditor type={type.types[typeIndex]!} />
+    </div>
+  );
+};
+
+function shortDescription(type: ValueType): string {
+  switch (type.kind) {
+    case "any":
+      return "any";
+    case "array":
+      return `${shortDescription(type.items)}[]`;
+    case "boolean":
+      return "boolean";
+    case "enum":
+      return `enum: ${Object.keys(type.options).join(", ")}`;
+    case "function":
+      return `() => ${shortDescription(type.returnType)}`;
+    case "intersection":
+      return "intersection";
+    case "literal":
+      return JSON.stringify(type.value);
+    case "map":
+      return `Map<${shortDescription(type.keys)}, ${shortDescription(
+        type.values
+      )}>`;
+    case "name":
+      return type.name;
+    case "never":
+      return "never";
+    case "node":
+      return "node";
+    case "null":
+      return "null";
+    case "number":
+      return "number";
+    case "object":
+      return `{ ${Object.keys(type.fields).join(", ")} }`;
+    case "optional":
+      return `${shortDescription(type.type)}?`;
+    case "promise":
+      return `Promise<${shortDescription(type.type)}>`;
+    case "record":
+      return `Record<${shortDescription(type.keys)}, ${shortDescription(
+        type.values
+      )}>`;
+    case "set":
+      return `Set<${shortDescription(type.items)}>`;
+    case "string":
+      return "string";
+    case "union":
+      return type.types.map(shortDescription).join(" | ");
+    case "unknown":
+      return "unknown";
+    case "void":
+      return "void";
+    default:
+      throw assertNever(type);
+  }
+}
+
+const UnknownEditor = () => <Unknown label="Unknown type" />;
+
+const Unknown = ({ label }: { label: string }) => (
+  <div className="flex flex-col">
+    <div className="text-gray-500 text-sm mb-1">{label}. Enter JS value:</div>
+    <TextAreaAutosize className="code w-full bg-gray-800 text-white text-xs p-2 resize-none rounded-md" />
+  </div>
 );

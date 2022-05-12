@@ -61,7 +61,7 @@ importers:
       '@previewjs/plugin-solid': workspace:*
       '@previewjs/plugin-vue2': workspace:*
       '@previewjs/plugin-vue3': workspace:*
-      '@previewjs/type-analyzer': workspace:^2.1.0
+      '@previewjs/type-analyzer': workspace:*
       '@previewjs/vfs': ^1.1.4
       '@react-hook/window-size': 3.0.7
       '@types/express': 4.17.13
@@ -94,6 +94,7 @@ importers:
       postcss: 8.4.13
       react: 18.1.0
       react-dom: 18.1.0
+      react-textarea-autosize: ^8.3.3
       rimraf: 3.0.2
       tailwindcss: 3.0.24
       ts-node: 10.7.0
@@ -105,6 +106,7 @@ importers:
       '@previewjs/core': link:../core
       '@previewjs/vfs': link:../vfs
       express: 4.18.1
+      react-textarea-autosize: 8.3.3_7cpxmzzodpxnolj5zcc5cr63ji
     devDependencies:
       '@fortawesome/fontawesome-svg-core': 6.1.1
       '@fortawesome/free-brands-svg-icons': 6.1.1
@@ -25834,6 +25836,20 @@ packages:
       refractor: 3.6.0
     dev: true
 
+  /react-textarea-autosize/8.3.3_7cpxmzzodpxnolj5zcc5cr63ji:
+    resolution: {integrity: sha512-2XlHXK2TDxS6vbQaoPbMOfQ8GK7+irc2fVK6QFIcC8GOnH3zI/v481n+j1L0WaPVvKxwesnY93fEfH++sus2rQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || 18
+    dependencies:
+      '@babel/runtime': 7.17.9
+      react: 18.1.0
+      use-composed-ref: 1.3.0_react@18.1.0
+      use-latest: 1.2.1_7cpxmzzodpxnolj5zcc5cr63ji
+    transitivePeerDependencies:
+      - '@types/react'
+    dev: false
+
   /react-textarea-autosize/8.3.3_react@17.0.2:
     resolution: {integrity: sha512-2XlHXK2TDxS6vbQaoPbMOfQ8GK7+irc2fVK6QFIcC8GOnH3zI/v481n+j1L0WaPVvKxwesnY93fEfH++sus2rQ==}
     engines: {node: '>=10'}
@@ -29579,6 +29595,27 @@ packages:
       react: 17.0.2
     dev: true
 
+  /use-composed-ref/1.3.0_react@18.1.0:
+    resolution: {integrity: sha512-GLMG0Jc/jiKov/3Ulid1wbv3r54K9HlMW29IWcDFPEqFkSO2nS0MuefWgMJpeHQ9YJeXDL3ZUF+P3jdXlZX/cQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+    dependencies:
+      react: 18.1.0
+    dev: false
+
+  /use-isomorphic-layout-effect/1.1.2_7cpxmzzodpxnolj5zcc5cr63ji:
+    resolution: {integrity: sha512-49L8yCO3iGT/ZF9QttjwLF/ZD9Iwto5LnH5LmEdk/6cFmXddqi2ulF0edxTwjj+7mqvpVVGQWvbXZdn32wRSHA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@types/react': 18.0.9
+      react: 18.1.0
+    dev: false
+
   /use-isomorphic-layout-effect/1.1.2_react@17.0.2:
     resolution: {integrity: sha512-49L8yCO3iGT/ZF9QttjwLF/ZD9Iwto5LnH5LmEdk/6cFmXddqi2ulF0edxTwjj+7mqvpVVGQWvbXZdn32wRSHA==}
     peerDependencies:
@@ -29590,6 +29627,20 @@ packages:
     dependencies:
       react: 17.0.2
     dev: true
+
+  /use-latest/1.2.1_7cpxmzzodpxnolj5zcc5cr63ji:
+    resolution: {integrity: sha512-xA+AVm/Wlg3e2P/JiItTziwS7FK92LWrDB0p+hgXloIMuVCeJJ8v6f0eeHyPZaJrM+usM1FkFfbNCrJGs8A/zw==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@types/react': 18.0.9
+      react: 18.1.0
+      use-isomorphic-layout-effect: 1.1.2_7cpxmzzodpxnolj5zcc5cr63ji
+    dev: false
 
   /use-latest/1.2.1_react@17.0.2:
     resolution: {integrity: sha512-xA+AVm/Wlg3e2P/JiItTziwS7FK92LWrDB0p+hgXloIMuVCeJJ8v6f0eeHyPZaJrM+usM1FkFfbNCrJGs8A/zw==}
