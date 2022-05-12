@@ -4,7 +4,6 @@ import {
   functionType,
   mapType,
   objectType,
-  optionalType,
   ParameterizableType,
   promiseType,
   recordType,
@@ -82,10 +81,15 @@ function replaceNamedType(
     case "object":
       return objectType(
         Object.fromEntries(
-          Object.entries(type.fields).map(([key, fieldType]) => [
-            key,
-            replaceNamedType(fieldType, named, replacement),
-          ])
+          Object.entries(type.fields).map(
+            ([key, { type: fieldType, required }]) => [
+              key,
+              {
+                type: replaceNamedType(fieldType, named, replacement),
+                required,
+              },
+            ]
+          )
         )
       );
     case "union":
@@ -100,8 +104,6 @@ function replaceNamedType(
       return functionType(
         replaceNamedType(type.returnType, named, replacement)
       );
-    case "optional":
-      return optionalType(replaceNamedType(type.type, named, replacement));
     case "promise":
       return promiseType(replaceNamedType(type.type, named, replacement));
     case "name":

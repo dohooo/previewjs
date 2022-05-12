@@ -11,7 +11,6 @@ import {
   functionType,
   literalType,
   mapType,
-  maybeOptionalType,
   namedType,
   NEVER_TYPE,
   NULL_TYPE,
@@ -421,7 +420,13 @@ class TypeResolver {
           this.resolveTypeInternal(indexType, genericTypeNames)
         );
       }
-      const fields: Record<string, ValueType> = {};
+      const fields: Record<
+        string,
+        {
+          type: ValueType;
+          required: boolean;
+        }
+      > = {};
       for (const property of type.getProperties()) {
         const [propertyName, ...nestedPath] = property.name.split(".");
         if (nestedPath.length > 0) {
@@ -434,12 +439,12 @@ class TypeResolver {
         const propertyTsType: ts.Type | undefined = (
           this.checker as any
         ).getTypeOfPropertyOfType(type, property.name);
-        fields[propertyName!] = maybeOptionalType(
-          propertyTsType
+        fields[propertyName!] = {
+          type: propertyTsType
             ? this.resolveTypeInternal(propertyTsType, genericTypeNames)
             : UNKNOWN_TYPE,
-          Boolean(property.flags & ts.SymbolFlags.Optional)
-        );
+          required: !Boolean(property.flags & ts.SymbolFlags.Optional),
+        };
       }
       return objectType(fields);
     }

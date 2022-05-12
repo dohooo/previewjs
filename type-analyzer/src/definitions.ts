@@ -18,7 +18,6 @@ export type ValueType =
   | UnionType
   | IntersectionType
   | FunctionType
-  | OptionalType
   | PromiseType
   | NamedType;
 
@@ -86,10 +85,18 @@ export function enumType(options: {
 
 export interface ObjectType {
   kind: "object";
-  fields: { [fieldName: string]: ValueType };
+  fields: {
+    [fieldName: string]: {
+      type: ValueType;
+      required: boolean;
+    };
+  };
 }
 export function objectType(fields: {
-  [fieldName: string]: ValueType;
+  [fieldName: string]: {
+    type: ValueType;
+    required: boolean;
+  };
 }): ObjectType {
   return {
     kind: "object",
@@ -149,7 +156,15 @@ export function setType(items: ValueType): SetType {
 export function tupleType(items: ValueType[]): ObjectType {
   return {
     kind: "object",
-    fields: Object.fromEntries(items.map((item, i) => [i.toString(), item])),
+    fields: Object.fromEntries(
+      items.map((item, i) => [
+        i.toString(),
+        {
+          type: item,
+          required: true,
+        },
+      ])
+    ),
   };
 }
 
@@ -196,31 +211,6 @@ export function functionType(returnType: ValueType): FunctionType {
     kind: "function",
     returnType,
   };
-}
-export interface OptionalType {
-  kind: "optional";
-  type: ValueType;
-}
-export function optionalType(type: ValueType): OptionalType {
-  if (type.kind === "optional") {
-    return type;
-  }
-  return {
-    kind: "optional",
-    type,
-  };
-}
-export function maybeOptionalType(
-  type: ValueType,
-  optional: boolean
-): ValueType {
-  if (type.kind === "optional") {
-    return type;
-  }
-  if (optional) {
-    return optionalType(type);
-  }
-  return type;
 }
 
 export interface PromiseType {

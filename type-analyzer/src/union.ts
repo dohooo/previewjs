@@ -1,26 +1,8 @@
 import isEqual from "lodash/isEqual";
 import { BOOLEAN_TYPE } from ".";
-import {
-  functionType,
-  maybeOptionalType,
-  unionType,
-  ValueType,
-  VOID_TYPE,
-} from "./definitions";
+import { functionType, unionType, ValueType, VOID_TYPE } from "./definitions";
 
 export function computeUnion(types: ValueType[]): ValueType {
-  let hasVoid = false;
-  types = types.filter((t) => {
-    if (t.kind === "void") {
-      hasVoid = true;
-      return false;
-    }
-    return true;
-  });
-  return maybeOptionalType(computeUnionWithoutVoid(types), hasVoid);
-}
-
-function computeUnionWithoutVoid(types: ValueType[]): ValueType {
   let evolvingType = types[0];
   if (!evolvingType) {
     return VOID_TYPE;
@@ -41,7 +23,7 @@ function computeUnionWithoutVoid(types: ValueType[]): ValueType {
   );
   const hasTrue = !!types.find((t) => t.kind === "literal" && t.value === true);
   if (hasFalse && hasTrue) {
-    return computeUnionWithoutVoid([
+    return computeUnion([
       BOOLEAN_TYPE,
       ...types.filter(
         (t) => t.kind !== "literal" || typeof t.value !== "boolean"

@@ -23,7 +23,6 @@ import {
   NULL_TYPE,
   NUMBER_TYPE,
   objectType,
-  optionalType,
   promiseType,
   recordType,
   setType,
@@ -187,7 +186,10 @@ interface B {
         },
         "main.ts:B": {
           type: objectType({
-            foo: STRING_TYPE,
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -247,12 +249,18 @@ type B = {
       )
     ).toEqual([
       objectType({
-        name: STRING_TYPE,
+        name: {
+          type: STRING_TYPE,
+          required: true,
+        },
       }),
       {
         "main.ts:B": {
           type: objectType({
-            name: STRING_TYPE,
+            name: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -281,7 +289,10 @@ type B = {
         },
         "main.ts:B": {
           type: objectType({
-            name: promiseType(STRING_TYPE),
+            name: {
+              type: promiseType(STRING_TYPE),
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -307,10 +318,22 @@ type A = {
       {
         ["main.ts:A"]: {
           type: objectType({
-            arrayBrackets: arrayType(STRING_TYPE),
-            arrayGeneric: arrayType(STRING_TYPE),
-            promise: promiseType(STRING_TYPE),
-            set: setType(STRING_TYPE),
+            arrayBrackets: {
+              type: arrayType(STRING_TYPE),
+              required: true,
+            },
+            arrayGeneric: {
+              type: arrayType(STRING_TYPE),
+              required: true,
+            },
+            promise: {
+              type: promiseType(STRING_TYPE),
+              required: true,
+            },
+            set: {
+              type: setType(STRING_TYPE),
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -335,9 +358,18 @@ type A = {
       {
         ["main.ts:A"]: {
           type: objectType({
-            foo: STRING_TYPE,
-            bar: optionalType(NUMBER_TYPE),
-            baz: arrayType(STRING_TYPE),
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            bar: {
+              type: unionType([VOID_TYPE, NUMBER_TYPE]),
+              required: false,
+            },
+            baz: {
+              type: arrayType(STRING_TYPE),
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -366,15 +398,27 @@ interface B {
       {
         ["main.ts:A"]: {
           type: objectType({
-            foo: STRING_TYPE,
-            bar: optionalType(NUMBER_TYPE),
-            baz: arrayType(namedType("main.ts:B")),
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            bar: {
+              type: unionType([VOID_TYPE, NUMBER_TYPE]),
+              required: false,
+            },
+            baz: {
+              type: arrayType(namedType("main.ts:B")),
+              required: true,
+            },
           }),
           parameters: {},
         },
         ["main.ts:B"]: {
           type: objectType({
-            foo: NUMBER_TYPE,
+            foo: {
+              type: NUMBER_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -399,9 +443,15 @@ type A = {
       {
         ["main.ts:A"]: {
           type: objectType({
-            foo: objectType({
-              bar: STRING_TYPE,
-            }),
+            foo: {
+              type: objectType({
+                bar: {
+                  type: STRING_TYPE,
+                  required: true,
+                },
+              }),
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -428,8 +478,14 @@ interface B {
       {
         ["main.ts:A"]: {
           type: objectType({
-            a: STRING_TYPE,
-            c: STRING_TYPE,
+            a: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            c: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -458,18 +514,36 @@ interface B {
       {
         ["main.ts:A"]: {
           type: objectType({
-            foo: objectType({
-              a: STRING_TYPE,
-              c: STRING_TYPE,
-            }),
+            foo: {
+              type: objectType({
+                a: {
+                  type: STRING_TYPE,
+                  required: true,
+                },
+                c: {
+                  type: STRING_TYPE,
+                  required: true,
+                },
+              }),
+              required: true,
+            },
           }),
           parameters: {},
         },
         ["main.ts:B"]: {
           type: objectType({
-            a: STRING_TYPE,
-            b: STRING_TYPE,
-            c: STRING_TYPE,
+            a: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            b: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            c: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -498,18 +572,36 @@ interface B<T, S = T> {
       {
         ["main.ts:A"]: {
           type: objectType({
-            foo: objectType({
-              a: NUMBER_TYPE,
-              c: NUMBER_TYPE,
-            }),
+            foo: {
+              type: objectType({
+                a: {
+                  type: NUMBER_TYPE,
+                  required: true,
+                },
+                c: {
+                  type: NUMBER_TYPE,
+                  required: true,
+                },
+              }),
+              required: true,
+            },
           }),
           parameters: {},
         },
         ["main.ts:B"]: {
           type: objectType({
-            a: namedType("T"),
-            b: STRING_TYPE,
-            c: namedType("S"),
+            a: {
+              type: namedType("T"),
+              required: true,
+            },
+            b: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            c: {
+              type: namedType("S"),
+              required: true,
+            },
           }),
           parameters: {
             T: null,
@@ -550,15 +642,27 @@ interface C<T> {
         },
         ["main.ts:B"]: {
           type: objectType({
-            kind: literalType("b"),
-            value: STRING_TYPE,
+            kind: {
+              type: literalType("b"),
+              required: true,
+            },
+            value: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
         ["main.ts:C"]: {
           type: objectType({
-            kind: literalType("c"),
-            value: namedType("T"),
+            kind: {
+              type: literalType("c"),
+              required: true,
+            },
+            value: {
+              type: namedType("T"),
+              required: true,
+            },
           }),
           parameters: {
             T: null,
@@ -584,12 +688,15 @@ type B = {
       namedType("main.ts:A"),
       {
         "main.ts:A": {
-          type: optionalType(namedType("main.ts:B")),
+          type: unionType([VOID_TYPE, namedType("main.ts:B")]),
           parameters: {},
         },
         "main.ts:B": {
           type: objectType({
-            foo: STRING_TYPE,
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -613,12 +720,15 @@ type B = {
       namedType("main.ts:A"),
       {
         "main.ts:A": {
-          type: optionalType(namedType("main.ts:B")),
+          type: unionType([VOID_TYPE, namedType("main.ts:B")]),
           parameters: {},
         },
         "main.ts:B": {
           type: objectType({
-            foo: STRING_TYPE,
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -653,12 +763,15 @@ foo: string;
       namedType("main.ts:A"),
       {
         "main.ts:A": {
-          type: optionalType(unionType([NULL_TYPE, namedType("main.ts:B")])),
+          type: unionType([VOID_TYPE, NULL_TYPE, namedType("main.ts:B")]),
           parameters: {},
         },
         "main.ts:B": {
           type: objectType({
-            foo: STRING_TYPE,
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -773,10 +886,16 @@ type C<T> = {
         "main.ts:A": {
           type: unionType([
             objectType({
-              foo: literalType("foo"),
+              foo: {
+                type: literalType("foo"),
+                required: true,
+              },
             }),
             objectType({
-              bar: STRING_TYPE,
+              bar: {
+                type: STRING_TYPE,
+                required: true,
+              },
             }),
           ]),
           parameters: {},
@@ -798,8 +917,18 @@ type A = { foo: "foo" } | { bar : "bar" } | string[];
       {
         "main.ts:A": {
           type: unionType([
-            objectType({ foo: literalType("foo") }),
-            objectType({ bar: literalType("bar") }),
+            objectType({
+              foo: {
+                type: literalType("foo"),
+                required: true,
+              },
+            }),
+            objectType({
+              bar: {
+                type: literalType("bar"),
+                required: true,
+              },
+            }),
             arrayType(STRING_TYPE),
           ]),
           parameters: {},
@@ -822,8 +951,18 @@ type A = (() => { foo: "foo" }) | ((args: any[]) => { bar: "bar" });
         "main.ts:A": {
           type: functionType(
             unionType([
-              objectType({ foo: literalType("foo") }),
-              objectType({ bar: literalType("bar") }),
+              objectType({
+                foo: {
+                  type: literalType("foo"),
+                  required: true,
+                },
+              }),
+              objectType({
+                bar: {
+                  type: literalType("bar"),
+                  required: true,
+                },
+              }),
             ])
           ),
           parameters: {},
@@ -860,13 +999,19 @@ interface C<T> {
         },
         ["main.ts:B"]: {
           type: objectType({
-            b: STRING_TYPE,
+            b: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
         ["main.ts:C"]: {
           type: objectType({
-            c: namedType("T"),
+            c: {
+              type: namedType("T"),
+              required: true,
+            },
           }),
           parameters: {
             T: null,
@@ -940,8 +1085,14 @@ type C<T> = {
       {
         "main.ts:A": {
           type: objectType({
-            foo: literalType("foo"),
-            bar: STRING_TYPE,
+            foo: {
+              type: literalType("foo"),
+              required: true,
+            },
+            bar: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -962,8 +1113,18 @@ type A = { foo: "foo" } & { bar : "bar" } & string[];
       {
         "main.ts:A": {
           type: intersectionType([
-            objectType({ foo: literalType("foo") }),
-            objectType({ bar: literalType("bar") }),
+            objectType({
+              foo: {
+                type: literalType("foo"),
+                required: true,
+              },
+            }),
+            objectType({
+              bar: {
+                type: literalType("bar"),
+                required: true,
+              },
+            }),
             arrayType(STRING_TYPE),
           ]),
           parameters: {},
@@ -985,7 +1146,16 @@ type A = (() => { foo: "foo" }) & ((args: any[]) => { bar: "bar" });
       {
         "main.ts:A": {
           type: functionType(
-            objectType({ foo: literalType("foo"), bar: literalType("bar") })
+            objectType({
+              foo: {
+                type: literalType("foo"),
+                required: true,
+              },
+              bar: {
+                type: literalType("bar"),
+                required: true,
+              },
+            })
           ),
           parameters: {},
         },
@@ -1132,18 +1302,36 @@ type B<T> = {
       {
         ["main.ts:A"]: {
           type: objectType({
-            foo: functionType(UNKNOWN_TYPE),
-            bar: functionType(UNKNOWN_TYPE),
-            baz: functionType(
-              objectType({
-                baz: UNKNOWN_TYPE,
-              })
-            ),
-            qux: functionType(
-              objectType({
-                foo: UNKNOWN_TYPE,
-              })
-            ),
+            foo: {
+              type: functionType(UNKNOWN_TYPE),
+              required: true,
+            },
+            bar: {
+              type: functionType(UNKNOWN_TYPE),
+              required: true,
+            },
+            baz: {
+              type: functionType(
+                objectType({
+                  baz: {
+                    type: UNKNOWN_TYPE,
+                    required: true,
+                  },
+                })
+              ),
+              required: true,
+            },
+            qux: {
+              type: functionType(
+                objectType({
+                  foo: {
+                    type: UNKNOWN_TYPE,
+                    required: true,
+                  },
+                })
+              ),
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1189,8 +1377,14 @@ type K = 'a' | 'b';
       {
         ["main.ts:A"]: {
           type: objectType({
-            a: STRING_TYPE,
-            b: STRING_TYPE,
+            a: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            b: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1228,7 +1422,10 @@ type A = {
       {
         ["main.ts:A"]: {
           type: objectType({
-            foo: recordType(STRING_TYPE, NUMBER_TYPE),
+            foo: {
+              type: recordType(STRING_TYPE, NUMBER_TYPE),
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1251,7 +1448,10 @@ type A = {
       {
         ["main.ts:A"]: {
           type: objectType({
-            foo: mapType(STRING_TYPE, NUMBER_TYPE),
+            foo: {
+              type: mapType(STRING_TYPE, NUMBER_TYPE),
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1275,8 +1475,14 @@ type A = {
       {
         ["main.ts:A"]: {
           type: objectType({
-            value: STRING_TYPE,
-            child: optionalType(arrayType(namedType("main.ts:A"))),
+            value: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            child: {
+              type: unionType([VOID_TYPE, arrayType(namedType("main.ts:A"))]),
+              required: false,
+            },
           }),
           parameters: {},
         },
@@ -1300,8 +1506,14 @@ interface A {
       {
         ["main.ts:A"]: {
           type: objectType({
-            value: STRING_TYPE,
-            child: optionalType(arrayType(namedType("main.ts:A"))),
+            value: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            child: {
+              type: unionType([VOID_TYPE, arrayType(namedType("main.ts:A"))]),
+              required: false,
+            },
           }),
           parameters: {},
         },
@@ -1332,9 +1544,18 @@ interface A extends B, C {
       {
         ["main.ts:A"]: {
           type: objectType({
-            foo: STRING_TYPE,
-            bar: STRING_TYPE,
-            baz: STRING_TYPE,
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            bar: {
+              type: STRING_TYPE,
+              required: true,
+            },
+            baz: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1425,8 +1646,14 @@ class A {
       {
         ["main.ts:A"]: {
           type: objectType({
-            self: namedType("main.ts:A"),
-            who: functionType(namedType("main.ts:A")),
+            self: {
+              type: namedType("main.ts:A"),
+              required: true,
+            },
+            who: {
+              type: functionType(namedType("main.ts:A")),
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1451,7 +1678,10 @@ interface B<T> {
       {
         ["main.ts:A"]: {
           type: objectType({
-            a: NUMBER_TYPE,
+            a: {
+              type: NUMBER_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1477,8 +1707,14 @@ interface B<T, S = T> {
       {
         ["main.ts:A"]: {
           type: objectType({
-            a: NUMBER_TYPE,
-            b: NUMBER_TYPE,
+            a: {
+              type: NUMBER_TYPE,
+              required: true,
+            },
+            b: {
+              type: NUMBER_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1504,8 +1740,14 @@ type B<T, S = T> = {
       {
         ["main.ts:A"]: {
           type: objectType({
-            a: NUMBER_TYPE,
-            b: NUMBER_TYPE,
+            a: {
+              type: NUMBER_TYPE,
+              required: true,
+            },
+            b: {
+              type: NUMBER_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1532,9 +1774,15 @@ type B<Value> = {
       {
         "main.ts:A": {
           type: objectType({
-            foo: objectType({
-              bar: arrayType(STRING_TYPE),
-            }),
+            foo: {
+              type: objectType({
+                bar: {
+                  type: arrayType(STRING_TYPE),
+                  required: true,
+                },
+              }),
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1569,14 +1817,20 @@ declare type Getter = {
       {
         ["main.ts:A"]: {
           type: objectType({
-            restaurantList: objectType({
-              read: functionType(
-                unionType([
-                  arrayType(STRING_TYPE),
-                  promiseType(arrayType(STRING_TYPE)),
-                ])
-              ),
-            }),
+            restaurantList: {
+              type: objectType({
+                read: {
+                  type: functionType(
+                    unionType([
+                      arrayType(STRING_TYPE),
+                      promiseType(arrayType(STRING_TYPE)),
+                    ])
+                  ),
+                  required: true,
+                },
+              }),
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1601,7 +1855,10 @@ interface B<T> {
       {
         ["main.ts:A"]: {
           type: objectType({
-            a: NUMBER_TYPE,
+            a: {
+              type: NUMBER_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1626,13 +1883,19 @@ interface B<T> {
       {
         "main.ts:A": {
           type: objectType({
-            self: namedType("main.ts:B", [NUMBER_TYPE]),
+            self: {
+              type: namedType("main.ts:B", [NUMBER_TYPE]),
+              required: true,
+            },
           }),
           parameters: {},
         },
         "main.ts:B": {
           type: objectType({
-            self: namedType("main.ts:B", [namedType("T")]),
+            self: {
+              type: namedType("main.ts:B", [namedType("T")]),
+              required: true,
+            },
           }),
           parameters: {
             T: null,
@@ -1660,8 +1923,14 @@ interface B<T, S = T> {
       {
         ["main.ts:A"]: {
           type: objectType({
-            a: NUMBER_TYPE,
-            b: NUMBER_TYPE,
+            a: {
+              type: NUMBER_TYPE,
+              required: true,
+            },
+            b: {
+              type: NUMBER_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1784,16 +2053,31 @@ export type D = original.A;
       {
         [`main.ts:A`]: {
           type: objectType({
-            a: namedType(`other.ts:A`),
-            b: NUMBER_TYPE,
-            c: arrayType(namedType(`other.ts:A`)),
-            d: optionalType(namedType(`main.ts:A`)),
+            a: {
+              type: namedType(`other.ts:A`),
+              required: true,
+            },
+            b: {
+              type: NUMBER_TYPE,
+              required: true,
+            },
+            c: {
+              type: arrayType(namedType(`other.ts:A`)),
+              required: true,
+            },
+            d: {
+              type: unionType([VOID_TYPE, namedType(`main.ts:A`)]),
+              required: false,
+            },
           }),
           parameters: {},
         },
         [`other.ts:A`]: {
           type: objectType({
-            foo: STRING_TYPE,
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1827,13 +2111,19 @@ namespace NS {
       {
         ["main.ts:A"]: {
           type: objectType({
-            a: namedType("other.ts:NS:B"),
+            a: {
+              type: namedType("other.ts:NS:B"),
+              required: true,
+            },
           }),
           parameters: {},
         },
         ["other.ts:NS:B"]: {
           type: objectType({
-            foo: STRING_TYPE,
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1868,13 +2158,19 @@ declare module "my-module" {
       {
         ["main.ts:A"]: {
           type: objectType({
-            a: namedType("other.ts:my-module:B"),
+            a: {
+              type: namedType("other.ts:my-module:B"),
+              required: true,
+            },
           }),
           parameters: {},
         },
         ["other.ts:my-module:B"]: {
           type: objectType({
-            foo: STRING_TYPE,
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1900,8 +2196,14 @@ declare module "my-module" {
       {
         ["main.ts:A"]: {
           type: objectType({
-            componentType: functionType(NODE_TYPE),
-            component: NODE_TYPE,
+            componentType: {
+              type: functionType(NODE_TYPE),
+              required: true,
+            },
+            component: {
+              type: NODE_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },
@@ -1926,7 +2228,10 @@ type C<T> = { (): T } | { new(...args: never[]): T & object } | { new(...args: s
       {
         ["main.ts:A"]: {
           type: objectType({
-            foo: STRING_TYPE,
+            foo: {
+              type: STRING_TYPE,
+              required: true,
+            },
           }),
           parameters: {},
         },

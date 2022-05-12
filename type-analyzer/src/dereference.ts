@@ -1,10 +1,5 @@
 import assertNever from "assert-never";
-import {
-  CollectedTypes,
-  optionalType,
-  UNKNOWN_TYPE,
-  ValueType,
-} from "./definitions";
+import { CollectedTypes, UNKNOWN_TYPE, ValueType } from "./definitions";
 import { computeIntersection } from "./intersection";
 import { evaluateType } from "./type-parameters";
 import { computeUnion } from "./union";
@@ -66,14 +61,6 @@ export function dereferenceType(
         encountered.push(...encounteredInSubtype);
       }
       return [computeIntersection(subtypes), encountered];
-    }
-    case "optional": {
-      const [resolved, encountered] = dereferenceType(
-        type.type,
-        collected,
-        rejectTypeNames
-      );
-      return [optionalType(resolved), encountered];
     }
     case "name": {
       if (rejectTypeNames.includes(type.name)) {

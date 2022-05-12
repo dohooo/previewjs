@@ -47,7 +47,15 @@ export function computeIntersection(types: ValueType[]): ValueType {
         if (intersectWith.kind !== "object") {
           return defaultIntersection;
         }
-        const intersectingFields: Array<[string, ValueType]> = [];
+        const intersectingFields: Array<
+          [
+            string,
+            {
+              type: ValueType;
+              required: boolean;
+            }
+          ]
+        > = [];
         for (const fieldName of new Set([
           ...Object.keys(evolvingType.fields),
           ...Object.keys(intersectWith.fields),
@@ -56,16 +64,28 @@ export function computeIntersection(types: ValueType[]): ValueType {
           const intersectingFieldType = intersectWith.fields[fieldName];
           const fieldType =
             evolvingFieldType && intersectingFieldType
-              ? computeIntersection([evolvingFieldType, intersectingFieldType])
+              ? computeIntersection([
+                  evolvingFieldType.type,
+                  intersectingFieldType.type,
+                ])
               : evolvingFieldType
-              ? evolvingFieldType
-              : intersectingFieldType;
+              ? evolvingFieldType.type
+              : intersectingFieldType?.type;
           if (!fieldType) {
             throw new Error(
               `Could not compute type of intersection field ${fieldName}`
             );
           }
-          intersectingFields.push([fieldName, fieldType]);
+          intersectingFields.push([
+            fieldName,
+            {
+              type: fieldType,
+              required:
+                evolvingFieldType?.required ||
+                intersectingFieldType?.required ||
+                false,
+            },
+          ]);
         }
         evolvingType = {
           kind: "object",
