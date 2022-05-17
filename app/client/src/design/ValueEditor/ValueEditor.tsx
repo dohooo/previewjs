@@ -39,9 +39,11 @@ import {
   set,
   string,
   TRUE,
+  UNDEFINED,
   UNKNOWN,
   unknown,
 } from "../../generators/serializable-value";
+import { serializableValueToJavaScript } from "../../generators/serializable-value-to-js";
 
 export const ValueEditor = ({
   type,
@@ -203,11 +205,14 @@ const ArrayEditor = ({
     onChange(array([...value.items.slice(0, i), ...value.items.slice(i + 1)]));
   };
   return (
-    <div className="flex-grow flex flex-col">
+    <div className="flex-grow flex flex-col gap-2">
+      {value.items.length === 0 && (
+        <div className="bg-gray-100 rounded-md p-2">Empty list</div>
+      )}
       {value.items.map((item, i) => (
         <div
           key={i}
-          className="border-2 border-gray-200 rounded-md p-2 mb-2 flex flex-row"
+          className="border-2 border-gray-200 rounded-md p-2 flex flex-row"
         >
           <ValueEditor
             type={type.items}
@@ -468,9 +473,10 @@ const ObjectEditor = ({
     return <pre>{"{}"}</pre>;
   }
   return (
-    <div className="grid grid-cols-12 gap-2 p-1 overflow-y-auto">
+    <div className="grid grid-cols-12 gap-2 p-1 flex-grow">
       {Object.entries(type.fields).map(([fieldName, fieldType]) => (
         <ObjectFieldEditor
+          key={fieldName}
           fieldName={fieldName}
           fieldType={fieldType}
           types={types}
@@ -480,7 +486,7 @@ const ObjectEditor = ({
                   .filter(
                     (e) => e.key.kind === "string" && e.key.value === fieldName
                   )
-                  .map((e) => e.value)[0] || UNKNOWN
+                  .map((e) => e.value)[0] || UNDEFINED
               : UNKNOWN
           }
           onChange={(fieldValue) =>
@@ -492,10 +498,14 @@ const ObjectEditor = ({
                         e.key.kind !== "string" || e.key.value !== fieldName
                     )
                   : []),
-                {
-                  key: string(fieldName),
-                  value: fieldValue,
-                },
+                ...(fieldValue.kind === "undefined"
+                  ? []
+                  : [
+                      {
+                        key: string(fieldName),
+                        value: fieldValue,
+                      },
+                    ]),
               ])
             )
           }
@@ -518,44 +528,59 @@ const ObjectFieldEditor = ({
   value: SerializableValue;
   onChange: (value: SerializableValue) => void;
 }) => {
-  const [checked, setChecked] = useState(false);
-  const type =
-    fieldType.kind === "optional"
-      ? checked
-        ? fieldType.type
-        : ({ kind: "never" } as const)
-      : fieldType;
+  const optional = fieldType.kind === "optional";
+  const [forceChecked, setForceChecked] = useState(false);
+  const checked = !optional || value.kind !== "undefined" || forceChecked;
+  const onCheckChange = (checked: boolean) => {
+    if (fieldType.kind !== "optional") {
+      return;
+    }
+    if (checked) {
+      onChange(generateSerializableValue(fieldType.type, types));
+      setForceChecked(true);
+    } else {
+      onChange(UNDEFINED);
+      setForceChecked(false);
+    }
+  };
+  const type = optional
+    ? checked
+      ? fieldType.type
+      : ({ kind: "never" } as const)
+    : fieldType;
   return (
     <Fragment key={fieldName}>
-      {fieldType.kind === "optional" && (
-        <div
-          onClick={() => setChecked(!checked)}
-          className="flex justify-center p-3"
-        >
-          <input
-            type="checkbox"
-            checked={checked}
-            onChange={(e) => setChecked(e.target.checked)}
-          />
-        </div>
-      )}
       <div
         className={clsx(
           "p-1 text-right truncate",
-          fieldType.kind === "optional" ? "col-span-1" : "col-span-2"
+          optional && "cursor-default"
         )}
         title={fieldName}
+        onClick={optional ? () => onCheckChange(!checked) : undefined}
       >
+        {fieldType.kind === "optional" && (
+          <>
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={(e) => onCheckChange(e.target.checked)}
+            />{" "}
+          </>
+        )}
         {fieldName}
       </div>
-      <div className="col-span-10 border-2 border-gray-200 p-1 rounded-lg">
-        <ValueEditor
-          type={type}
-          types={types}
-          value={value}
-          onChange={onChange}
-        />
-      </div>
+      {checked ? (
+        <div className="col-span-11 border-2 border-gray-200 p-1 rounded-lg">
+          <ValueEditor
+            type={type}
+            types={types}
+            value={value}
+            onChange={onChange}
+          />
+        </div>
+      ) : (
+        <div className="col-span-11" onClick={() => onCheckChange(true)}></div>
+      )}
     </Fragment>
   );
 };
@@ -723,30 +748,39 @@ const UnionEditor = ({
 }) => {
   // TODO: Choose the right type based on value.
   const [typeIndex, setTypeIndex] = useState(0);
+  const currentType = type.types[typeIndex]!;
   return (
-    <div className="flex-grow">
-      {type.types.length <= 3 ? (
-        <div className="flex flex-row justify-evenly gap-2 mb-2">
-          {type.types.map((type, i) => (
-            <button
-              key={i}
-              className={clsx(
-                "truncate flex-grow text-center rounded-md p-1 border-2 border-gray-200",
-                i === typeIndex ? "bg-white" : "bg-gray-200"
-              )}
-              onClick={() => {
-                setTypeIndex(i);
-                onChange(generateSerializableValue(type, types, false));
-              }}
-            >
-              {shortDescription(type)}
-            </button>
-          ))}
+    <div className="flex-grow flex flex-col gap-2">
+      {
+        /*type.types.length <= 3 ? (
+        <div className="flex flex-row flex-wrap justify-evenly gap-2">
+          {type.types.map((type, i) => {
+            const description = shortDescription(type);
+            return (
+              <button
+                key={i}
+                className={clsx(
+                  "truncate flex-grow text-center text-sm rounded-md p-1 border-2 border-gray-200",
+                  i === typeIndex ? "bg-white" : "bg-gray-200"
+                )}
+                title={description}
+                onClick={() => {
+                  setTypeIndex(i);
+                  onChange(generateSerializableValue(type, types, false));
+                }}
+              >
+                {description}
+              </button>
+            );
+          })}
         </div>
-      ) : (
-        <select
-          className="appearance-none w-full bg-white p-1.5 rounded-md outline-none border-2 border-gray-200 mb-2"
-          onChange={(e) => setTypeIndex(parseInt(e.target.value))}
+      ) : */ <select
+          className="appearance-none w-full bg-white p-1.5 rounded-md outline-none border-2 border-gray-200"
+          onChange={(e) => {
+            const i = parseInt(e.target.value);
+            setTypeIndex(i);
+            onChange(generateSerializableValue(type.types[i]!, types, false));
+          }}
         >
           {type.types.map((type, i) => (
             <option key={i} value={i}>
@@ -754,13 +788,15 @@ const UnionEditor = ({
             </option>
           ))}
         </select>
+      }
+      {currentType.kind !== "literal" && (
+        <ValueEditor
+          type={currentType}
+          types={types}
+          value={value}
+          onChange={onChange}
+        />
       )}
-      <ValueEditor
-        type={type.types[typeIndex]!}
-        types={types}
-        value={value}
-        onChange={onChange}
-      />
     </div>
   );
 };
@@ -856,7 +892,7 @@ const Unknown = ({
     <div className="text-gray-500 text-sm mb-1">{label}. Enter JS value:</div>
     <TextAreaAutosize
       className="code w-full bg-gray-800 text-white text-xs p-2 resize-none rounded-md"
-      value={value}
+      value={serializableValueToJavaScript(value)}
       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
         onChange(unknown(e.target.value))
       }

@@ -131,7 +131,7 @@ export const Preview = observer(
                     icon: faCode,
                     notificationCount: 0,
                     panel: state.component.details && (
-                      <div className="bg-white overflow-y-auto">
+                      <div className="bg-white overflow-y-auto flex-grow">
                         <ValueEditor
                           type={state.component.details.props.types.props}
                           types={state.component.details.props.types.all}

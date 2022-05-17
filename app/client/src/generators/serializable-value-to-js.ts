@@ -60,7 +60,7 @@ export function serializableValueToJavaScript(
     case "undefined":
       return "undefined";
     case "unknown":
-      return value.source || "{}";
+      return value.source ?? "{}";
     default:
       throw assertNever(value);
   }
