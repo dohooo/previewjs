@@ -14,6 +14,7 @@ import { ActionLogsState } from "./components/ActionLogs";
 import { ConsolePanelState } from "./components/ConsolePanel";
 import { ErrorState } from "./components/Error/ErrorState";
 import { UpdateBannerState } from "./components/UpdateBanner";
+import { SerializableValue, UNKNOWN } from "./generators/serializable-value";
 import { PersistedStateController } from "./PersistedStateController";
 import "./window";
 
@@ -233,12 +234,13 @@ export class PreviewState {
     window.__previewjs_navigate(this.component.componentId, variantKey);
   }
 
-  updateProps(source: string) {
+  updateProps(value: SerializableValue) {
     if (!this.component?.details) {
       return;
     }
-    this.component.details.props.setInvocationSource(source);
-    this.cachedInvocations[this.component.componentId] = source;
+    this.component.details.props.setValue(value);
+    // TODO: Add back.
+    // this.cachedInvocations[this.component.componentId] = source;
     this.renderComponent();
   }
 
@@ -246,7 +248,7 @@ export class PreviewState {
     if (!this.component?.details) {
       return;
     }
-    this.component.details.props.setInvocationSource(null);
+    this.component.details.props.setValue(UNKNOWN);
     delete this.cachedInvocations[this.component.componentId];
     this.renderComponent();
   }

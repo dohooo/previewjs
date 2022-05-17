@@ -366,7 +366,9 @@ const LiteralEditor = ({
 
 const Constant = ({ label }: { label: string }) => (
   // TODO: Consider showing an error if value doesn't match.
-  <div className="bg-gray-100 rounded-mg">{label}</div>
+  <pre className="bg-gray-100 flex-grow flex flex-row items-center px-2">
+    {label}
+  </pre>
 );
 
 const MapEditor = ({
@@ -466,7 +468,7 @@ const ObjectEditor = ({
     return <pre>{"{}"}</pre>;
   }
   return (
-    <div className="grid grid-cols-12 gap-2 p-1">
+    <div className="grid grid-cols-12 gap-2 p-1 overflow-y-auto">
       {Object.entries(type.fields).map(([fieldName, fieldType]) => (
         <ObjectFieldEditor
           fieldName={fieldName}
@@ -474,15 +476,27 @@ const ObjectEditor = ({
           types={types}
           value={
             value.kind === "object"
-              ? value.entries[fieldName] || UNKNOWN
+              ? value.entries
+                  .filter(
+                    (e) => e.key.kind === "string" && e.key.value === fieldName
+                  )
+                  .map((e) => e.value)[0] || UNKNOWN
               : UNKNOWN
           }
           onChange={(fieldValue) =>
             onChange(
-              object({
-                ...(value.kind === "object" ? value.entries : {}),
-                [fieldName]: fieldValue,
-              })
+              object([
+                ...(value.kind === "object"
+                  ? value.entries.filter(
+                      (e) =>
+                        e.key.kind !== "string" || e.key.value !== fieldName
+                    )
+                  : []),
+                {
+                  key: string(fieldName),
+                  value: fieldValue,
+                },
+              ])
             )
           }
         />
@@ -513,20 +527,28 @@ const ObjectFieldEditor = ({
       : fieldType;
   return (
     <Fragment key={fieldName}>
-      <div className="col-span-2 p-1 text-right truncate">{fieldName}</div>
-      <div
-        onClick={() => setChecked(!checked)}
-        className="flex justify-center p-3"
-      >
-        {fieldType.kind === "optional" && (
+      {fieldType.kind === "optional" && (
+        <div
+          onClick={() => setChecked(!checked)}
+          className="flex justify-center p-3"
+        >
           <input
             type="checkbox"
             checked={checked}
             onChange={(e) => setChecked(e.target.checked)}
           />
+        </div>
+      )}
+      <div
+        className={clsx(
+          "p-1 text-right truncate",
+          fieldType.kind === "optional" ? "col-span-1" : "col-span-2"
         )}
+        title={fieldName}
+      >
+        {fieldName}
       </div>
-      <div className="col-span-9 border-2 border-gray-200 p-1 rounded-lg">
+      <div className="col-span-10 border-2 border-gray-200 p-1 rounded-lg">
         <ValueEditor
           type={type}
           types={types}
@@ -579,29 +601,61 @@ const RecordEditor = ({
   const value = inputValue.kind === "object" ? inputValue : EMPTY_OBJECT;
   const addItem = () => {
     onChange(
-      object(
-        Object.fromEntries([
-          ...Object.entries(value.entries),
-          [
-            generateSerializableValue(type.keys, types),
-            generateSerializableValue(type.values, types),
-          ],
-        ])
-      )
+      object([
+        ...value.entries,
+        {
+          key: generateSerializableValue(type.keys, types),
+          value: generateSerializableValue(type.values, types),
+        },
+      ])
     );
   };
   const removeItem = (i: number) => () => {
-    onChange(array([...value.items.slice(0, i), ...value.items.slice(i + 1)]));
+    onChange(
+      object([...value.entries.slice(0, i), ...value.entries.slice(i + 1)])
+    );
   };
   return (
-    <div className="flex-grow flex flex-col">
-      {items.map((item, i) => (
+    <div className="flex-grow flex flex-col items-stretch">
+      {value.entries.map((entry, i) => (
         <div
           key={i}
           className="border-2 border-gray-200 rounded-md p-2 mb-2 grid grid-cols-[1fr_1fr_auto]"
         >
-          <ValueEditor type={type.keys} types={types} onChange={} />
-          <ValueEditor type={type.values} types={types} />
+          <ValueEditor
+            type={type.keys}
+            types={types}
+            value={entry.key}
+            onChange={(newKey) =>
+              onChange(
+                object([
+                  ...value.entries.slice(0, i),
+                  {
+                    key: newKey,
+                    value: entry.value,
+                  },
+                  ...value.entries.slice(i + 1),
+                ])
+              )
+            }
+          />
+          <ValueEditor
+            type={type.values}
+            types={types}
+            value={entry.value}
+            onChange={(newValue) =>
+              onChange(
+                object([
+                  ...value.entries.slice(0, i),
+                  {
+                    key: entry.key,
+                    value: newValue,
+                  },
+                  ...value.entries.slice(i + 1),
+                ])
+              )
+            }
+          />
           <button
             className="p-2 rounded-md hover:bg-gray-200"
             onClick={removeItem(i)}
@@ -667,9 +721,10 @@ const UnionEditor = ({
   value: SerializableValue;
   onChange: (value: SerializableValue) => void;
 }) => {
+  // TODO: Choose the right type based on value.
   const [typeIndex, setTypeIndex] = useState(0);
   return (
-    <div>
+    <div className="flex-grow">
       {type.types.length <= 3 ? (
         <div className="flex flex-row justify-evenly gap-2 mb-2">
           {type.types.map((type, i) => (
@@ -679,7 +734,10 @@ const UnionEditor = ({
                 "truncate flex-grow text-center rounded-md p-1 border-2 border-gray-200",
                 i === typeIndex ? "bg-white" : "bg-gray-200"
               )}
-              onClick={() => setTypeIndex(i)}
+              onClick={() => {
+                setTypeIndex(i);
+                onChange(generateSerializableValue(type, types, false));
+              }}
             >
               {shortDescription(type)}
             </button>
@@ -697,7 +755,12 @@ const UnionEditor = ({
           ))}
         </select>
       )}
-      <ValueEditor type={type.types[typeIndex]!} types={types} />
+      <ValueEditor
+        type={type.types[typeIndex]!}
+        types={types}
+        value={value}
+        onChange={onChange}
+      />
     </div>
   );
 };
@@ -723,7 +786,8 @@ function shortDescription(type: ValueType): string {
         type.values
       )}>`;
     case "name":
-      return type.name;
+      const lastColumnPosition = type.name.lastIndexOf(":");
+      return type.name.substring(lastColumnPosition + 1);
     case "never":
       return "never";
     case "node":
@@ -732,8 +796,22 @@ function shortDescription(type: ValueType): string {
       return "null";
     case "number":
       return "number";
-    case "object":
-      return `{ ${Object.keys(type.fields).join(", ")} }`;
+    case "object": {
+      let text = "{";
+      let i = 0;
+      for (const [fieldName, fieldType] of Object.entries(type.fields)) {
+        if (i > 0) {
+          text += ", ";
+        }
+        text += fieldName;
+        if (fieldType.kind === "literal") {
+          text += `: ${JSON.stringify(fieldType.value)}`;
+        }
+        i++;
+      }
+      text += "}";
+      return text;
+    }
     case "optional":
       return `${shortDescription(type.type)}?`;
     case "promise":

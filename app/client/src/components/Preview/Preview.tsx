@@ -12,9 +12,9 @@ import { decodeComponentId } from "../../component-id";
 import { FilePath } from "../../design/FilePath";
 import { Header } from "../../design/Header";
 import { Link } from "../../design/Link";
-import { PropsEditor } from "../../design/PropsEditor";
 import { SmallLogo } from "../../design/SmallLogo";
 import { PanelTab, TabbedPanel } from "../../design/TabbedPanel";
+import { ValueEditor } from "../../design/ValueEditor";
 import { PreviewState } from "../../PreviewState";
 import { ActionLogs } from "../ActionLogs";
 import { ConsolePanel } from "../ConsolePanel";
@@ -130,24 +130,15 @@ export const Preview = observer(
                     key: "props",
                     icon: faCode,
                     notificationCount: 0,
-                    panel: (
-                      <PropsEditor
-                        documentId={state.component.componentId}
-                        height={height}
-                        width={width}
-                        onUpdate={state.updateProps.bind(state)}
-                        onReset={
-                          state.component?.details &&
-                          state.component.details.props
-                            .isDefaultInvocationSource
-                            ? undefined
-                            : state.resetProps.bind(state)
-                        }
-                        source={state.component.details?.props.invocationSource}
-                        typeDeclarationsSource={
-                          state.component.details?.props.typeDeclarations
-                        }
-                      />
+                    panel: state.component.details && (
+                      <div className="bg-white overflow-y-auto">
+                        <ValueEditor
+                          type={state.component.details.props.types.props}
+                          types={state.component.details.props.types.all}
+                          value={state.component.details.props.value}
+                          onChange={(value) => state.updateProps(value)}
+                        />
+                      </div>
                     ),
                   },
                 ]

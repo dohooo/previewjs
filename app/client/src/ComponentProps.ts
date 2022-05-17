@@ -1,28 +1,37 @@
 import { CollectedTypes, ValueType } from "@previewjs/type-analyzer";
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, observable } from "mobx";
 import { extractFunctionKeys } from "./generators/extract-function-keys";
 import { generateDefaultProps } from "./generators/generate-default-props";
 import { generateInvocation } from "./generators/generate-invocation";
 import { generateTypeDeclarations } from "./generators/generate-type-declarations";
+import { SerializableValue, unknown } from "./generators/serializable-value";
+import { serializableValueToJavaScript } from "./generators/serializable-value-to-js";
 
 export class ComponentProps {
-  private _invocationSource: string | null;
+  private _value: SerializableValue;
 
   constructor(
     private readonly name: string,
-    private readonly types: {
+    readonly types: {
       props: ValueType;
       all: CollectedTypes;
     },
     private readonly argKeys: string[],
     cachedInvocationSource: string | null
   ) {
-    this._invocationSource = cachedInvocationSource;
-    makeAutoObservable(this);
+    // TODO: Cached structured value.
+    this._value = unknown(cachedInvocationSource);
+    makeAutoObservable<ComponentProps, "_value">(this, {
+      _value: observable.ref,
+    });
   }
 
-  setInvocationSource(source: string | null) {
-    this._invocationSource = source;
+  get value() {
+    return this._value;
+  }
+
+  setValue(value: SerializableValue) {
+    this._value = value;
   }
 
   /**
@@ -50,11 +59,7 @@ export class ComponentProps {
   }
 
   get invocationSource(): string {
-    const source = this._invocationSource;
-    if (source === null) {
-      return this.defaultInvocationSource;
-    }
-    return source;
+    return `properties = ${serializableValueToJavaScript(this._value)}`;
   }
 
   get isDefaultInvocationSource(): boolean {
