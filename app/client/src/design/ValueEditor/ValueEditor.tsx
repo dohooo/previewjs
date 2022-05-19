@@ -199,7 +199,14 @@ const ArrayEditor = ({
 }) => {
   const value = inputValue.kind === "array" ? inputValue : EMPTY_ARRAY;
   const addItem = () => {
-    onChange(array([...value.items, generateSerializableValue(type, types)]));
+    onChange(
+      array([
+        ...value.items,
+        generateSerializableValue(type, types, false, [
+          value.items.length.toString(10),
+        ]),
+      ])
+    );
   };
   const removeItem = (i: number) => () => {
     onChange(array([...value.items.slice(0, i), ...value.items.slice(i + 1)]));
@@ -229,14 +236,17 @@ const ArrayEditor = ({
             }
           />
           <button
-            className="p-2 rounded-md hover:bg-gray-200"
+            className="p-2 rounded-md font-medium hover:bg-gray-200"
             onClick={removeItem(i)}
           >
             -
           </button>
         </div>
       ))}
-      <button className="p-2 rounded-md hover:bg-gray-200" onClick={addItem}>
+      <button
+        className="p-2 rounded-md font-medium hover:bg-gray-200"
+        onClick={addItem}
+      >
         +
       </button>
     </div>
@@ -255,7 +265,7 @@ const BooleanEditor = ({
     <div className="grid grid-cols-2">
       <button
         className={clsx([
-          "rounded-md",
+          "rounded-md font-medium",
           !checked ? "bg-gray-300 text-black" : "",
         ])}
         onClick={() => onChange(FALSE)}
@@ -264,7 +274,7 @@ const BooleanEditor = ({
       </button>
       <button
         className={clsx([
-          "rounded-md",
+          "rounded-md font-medium",
           checked ? "bg-gray-800 text-white" : "",
         ])}
         onClick={() => onChange(TRUE)}
@@ -473,7 +483,7 @@ const ObjectEditor = ({
     return <pre>{"{}"}</pre>;
   }
   return (
-    <div className="grid grid-cols-12 gap-2 p-1 flex-grow">
+    <div className="grid grid-cols-6 gap-2 p-1 flex-grow">
       {Object.entries(type.fields).map(([fieldName, fieldType]) => (
         <ObjectFieldEditor
           key={fieldName}
@@ -536,7 +546,9 @@ const ObjectFieldEditor = ({
       return;
     }
     if (checked) {
-      onChange(generateSerializableValue(fieldType.type, types));
+      onChange(
+        generateSerializableValue(fieldType.type, types, false, [fieldName])
+      );
       setForceChecked(true);
     } else {
       onChange(UNDEFINED);
@@ -570,7 +582,7 @@ const ObjectFieldEditor = ({
         {fieldName}
       </div>
       {checked ? (
-        <div className="col-span-11 border-2 border-gray-200 p-1 rounded-lg">
+        <div className="col-span-5 border-2 border-gray-200 p-1 rounded-lg">
           <ValueEditor
             type={type}
             types={types}
@@ -579,7 +591,7 @@ const ObjectFieldEditor = ({
           />
         </div>
       ) : (
-        <div className="col-span-11" onClick={() => onCheckChange(true)}></div>
+        <div className="col-span-5" onClick={() => onCheckChange(true)}></div>
       )}
     </Fragment>
   );
@@ -629,8 +641,12 @@ const RecordEditor = ({
       object([
         ...value.entries,
         {
-          key: generateSerializableValue(type.keys, types),
-          value: generateSerializableValue(type.values, types),
+          key: generateSerializableValue(type.keys, types, false, [
+            value.entries.length.toString(10),
+          ]),
+          value: generateSerializableValue(type.values, types, false, [
+            value.entries.length.toString(10),
+          ]),
         },
       ])
     );
@@ -643,54 +659,61 @@ const RecordEditor = ({
   return (
     <div className="flex-grow flex flex-col items-stretch">
       {value.entries.map((entry, i) => (
-        <div
-          key={i}
-          className="border-2 border-gray-200 rounded-md p-2 mb-2 grid grid-cols-[1fr_1fr_auto]"
-        >
-          <ValueEditor
-            type={type.keys}
-            types={types}
-            value={entry.key}
-            onChange={(newKey) =>
-              onChange(
-                object([
-                  ...value.entries.slice(0, i),
-                  {
-                    key: newKey,
-                    value: entry.value,
-                  },
-                  ...value.entries.slice(i + 1),
-                ])
-              )
-            }
-          />
-          <ValueEditor
-            type={type.values}
-            types={types}
-            value={entry.value}
-            onChange={(newValue) =>
-              onChange(
-                object([
-                  ...value.entries.slice(0, i),
-                  {
-                    key: entry.key,
-                    value: newValue,
-                  },
-                  ...value.entries.slice(i + 1),
-                ])
-              )
-            }
-          />
-          <button
-            className="p-2 rounded-md hover:bg-gray-200"
-            onClick={removeItem(i)}
-          >
-            -
-          </button>
-        </div>
+        <Fragment key={i}>
+          <div className="border-2 border-gray-200 rounded-md p-2 mb-2 flex flex-col flex-grow">
+            <label className="uppercase font-bold text-sm mb-2">Key</label>
+            <div className="border-2 border-gray-200 rounded-md p-2">
+              <ValueEditor
+                type={type.keys}
+                types={types}
+                value={entry.key}
+                onChange={(newKey) =>
+                  onChange(
+                    object([
+                      ...value.entries.slice(0, i),
+                      {
+                        key: newKey,
+                        value: entry.value,
+                      },
+                      ...value.entries.slice(i + 1),
+                    ])
+                  )
+                }
+              />
+            </div>
+            <label className="uppercase font-bold text-sm mt-4 mb-3">
+              Value
+            </label>
+            <div className="border-2 border-gray-200 rounded-md p-2">
+              <ValueEditor
+                type={type.values}
+                types={types}
+                value={entry.value}
+                onChange={(newValue) =>
+                  onChange(
+                    object([
+                      ...value.entries.slice(0, i),
+                      {
+                        key: entry.key,
+                        value: newValue,
+                      },
+                      ...value.entries.slice(i + 1),
+                    ])
+                  )
+                }
+              />
+            </div>
+            <button
+              className="mt-2 p-2 rounded-md font-medium text-gray-400 hover:bg-gray-200 hover:text-black"
+              onClick={removeItem(i)}
+            >
+              Remove entry
+            </button>
+          </div>
+        </Fragment>
       ))}
       <button
-        className="col-span-3 p-2 rounded-md hover:bg-gray-200"
+        className="col-span-3 p-2 rounded-md font-medium hover:bg-gray-200"
         onClick={addItem}
       >
         +
