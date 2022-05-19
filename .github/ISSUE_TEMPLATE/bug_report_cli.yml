@@ -32,6 +32,14 @@ body:
       placeholder: v1.0.0
     validations:
       required: true
+  - type: input
+    id: framework
+    attributes:
+      label: Framework
+      description: Which framework are you using? Please include version as well.
+      placeholder: React 18.0.0
+    validations:
+      required: true
   - type: textarea
     id: system-info
     attributes:
@@ -60,6 +68,11 @@ body:
     attributes:
       label: Browser logs (useful for rendering errors)
       render: shell
+  - type: textarea
+    attributes:
+      label: Repo link (if available)
+      description: |
+        It can be significantly easier to fix a bug when a repo is available to reproduce it :)
   - type: textarea
     attributes:
       label: Anything else?
