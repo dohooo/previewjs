@@ -10,7 +10,8 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import fs from "fs-extra";
 import getPort from "get-port";
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 import * as vite from "vite";
 import { analyzeProject, ProjectAnalysis } from "./analyze-project";
 import { computeProps } from "./compute-props";
@@ -35,6 +36,9 @@ export type {
   PreviewEnvironment,
   SetupPreviewEnvironment,
 } from "./preview-env";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export async function createWorkspace({
   versionCode,
@@ -122,10 +126,7 @@ export async function createWorkspace({
     reader,
     rootDirPath,
     // TODO: Use a cleaner approach.
-    previewDirPath: path.join(
-      path.dirname(path.dirname(require.resolve("@previewjs/iframe"))),
-      "preview"
-    ),
+    previewDirPath: path.join(__dirname, "..", "..", "iframe", "preview"),
     frameworkPlugin,
     logLevel,
     middlewares: [
