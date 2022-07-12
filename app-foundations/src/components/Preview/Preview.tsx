@@ -5,6 +5,7 @@ import {
   faTerminal,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { unknown } from "@previewjs/serializable-values";
 import { useWindowSize } from "@react-hook/window-size";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -133,7 +134,9 @@ export const Preview = observer(
                         documentId={state.component.componentId}
                         height={height}
                         width={width}
-                        onUpdate={state.updateProps.bind(state)}
+                        onUpdate={(source) =>
+                          state.updateProps(unknown(source))
+                        }
                         onReset={
                           state.component?.details &&
                           state.component.details.props
