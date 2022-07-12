@@ -31,9 +31,10 @@
   "scripts": {
     "prepublish": "cd .. && pnpm turbo run build --scope=@previewjs/plugin-solid --no-deps --include-dependencies",
     "build": "rimraf dist && tsc",
-    "test": "vitest"
+    "test": "vitest --no-threads"
   },
   "dependencies": {
+    "@previewjs/csf3": "^0.0.0",
     "@previewjs/type-analyzer": "^2.2.2",
     "@previewjs/vfs": "^1.2.2",
     "typescript": "^4.7.4",
@@ -42,8 +43,8 @@
   "devDependencies": {
     "@previewjs/core": "workspace:*",
     "rimraf": "3.0.2",
-    "solid-js": "1.4.6",
-    "vite": "2.9.13",
-    "vitest": "0.17.1"
+    "solid-js": "1.4.7",
+    "vite": "2.9.14",
+    "vitest": "0.18.0"
   }
 }
