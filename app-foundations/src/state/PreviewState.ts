@@ -4,6 +4,7 @@ import {
   PreviewIframeController,
   Variant,
 } from "@previewjs/iframe";
+import { SerializableValue, UNKNOWN } from "@previewjs/serializable-values";
 import assertNever from "assert-never";
 import { makeAutoObservable, observable, runInAction } from "mobx";
 import { ActionLogsState } from "../components/ActionLogs";
@@ -72,7 +73,7 @@ export class PreviewState {
   private iframeRef: React.RefObject<HTMLIFrameElement | null> = {
     current: null,
   };
-  private cachedInvocations: Record<string, string> = {};
+  private cachedInvocations: Record<string, SerializableValue> = {};
   private pingInterval: NodeJS.Timer | null = null;
 
   constructor(
@@ -224,12 +225,12 @@ export class PreviewState {
     window.__previewjs_navigate(this.component.componentId, variantKey);
   }
 
-  updateProps(source: string) {
+  updateProps(value: SerializableValue) {
     if (!this.component?.details) {
       return;
     }
-    this.component.details.props.setInvocationSource(source);
-    this.cachedInvocations[this.component.componentId] = source;
+    this.component.details.props.setValue(value);
+    this.cachedInvocations[this.component.componentId] = value;
     this.renderComponent();
   }
 
@@ -237,7 +238,7 @@ export class PreviewState {
     if (!this.component?.details) {
       return;
     }
-    this.component.details.props.setInvocationSource(null);
+    this.component.details.props.setValue(UNKNOWN);
     delete this.cachedInvocations[this.component.componentId];
     this.renderComponent();
   }

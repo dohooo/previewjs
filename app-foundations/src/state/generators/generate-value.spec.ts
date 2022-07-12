@@ -1,7 +1,9 @@
+import { serializableValueToJavaScript } from "@previewjs/serializable-values";
 import {
   ANY_TYPE,
   arrayType,
   BOOLEAN_TYPE,
+  CollectedTypes,
   enumType,
   functionType,
   intersectionType,
@@ -18,15 +20,16 @@ import {
   STRING_TYPE,
   unionType,
   UNKNOWN_TYPE,
+  ValueType,
   VOID_TYPE,
 } from "@previewjs/type-analyzer";
 import { describe, expect, test } from "vitest";
-import { generateInvocation } from "./generate-invocation";
+import { generateValue } from "./generate-value";
 
-describe("generateInvocation", () => {
+describe("generateValue", () => {
   test("simple props with object type", () => {
     expect(
-      generateInvocation(
+      generateSource(
         objectType({
           foo: STRING_TYPE,
         }),
@@ -34,15 +37,16 @@ describe("generateInvocation", () => {
         {}
       )
     ).toMatchInlineSnapshot(`
-      "properties = {
-        foo: \\"foo\\",
-      };"
+      "{
+      \\"foo\\": \\"foo\\",
+
+      }"
     `);
   });
 
   test("simple props with named type", () => {
     expect(
-      generateInvocation(namedType("/foo.tsx:MyComponentProps"), [], {
+      generateSource(namedType("/foo.tsx:MyComponentProps"), [], {
         "/foo.tsx:MyComponentProps": {
           type: objectType({
             foo: STRING_TYPE,
@@ -51,15 +55,16 @@ describe("generateInvocation", () => {
         },
       })
     ).toMatchInlineSnapshot(`
-      "properties = {
-        foo: \\"foo\\",
-      };"
+      "{
+      \\"foo\\": \\"foo\\",
+
+      }"
     `);
   });
 
   test("recursive type", () => {
     expect(
-      generateInvocation(namedType("/foo.tsx:MyComponentProps"), [], {
+      generateSource(namedType("/foo.tsx:MyComponentProps"), [], {
         "/foo.tsx:MyComponentProps": {
           type: objectType({
             foo: STRING_TYPE,
@@ -69,18 +74,20 @@ describe("generateInvocation", () => {
         },
       })
     ).toMatchInlineSnapshot(`
-      "properties = {
-        foo: \\"foo\\",
-        recursive: {
-          foo: \\"recursive.foo\\",
-        },
-      };"
+      "{
+      \\"foo\\": \\"foo\\",
+      \\"recursive\\": {
+      \\"foo\\": \\"recursive.foo\\",
+
+      },
+
+      }"
     `);
   });
 
   test("all types", () => {
     expect(
-      generateInvocation(namedType("/foo.tsx:Foo"), [], {
+      generateSource(namedType("/foo.tsx:Foo"), [], {
         "/foo.tsx:Foo": {
           type: objectType({
             anyType: ANY_TYPE,
@@ -130,35 +137,37 @@ describe("generateInvocation", () => {
         },
       })
     ).toMatchInlineSnapshot(`
-      "properties = {
-        nullType: null,
-        booleanType: false,
-        stringType: \\"stringType\\",
-        numberType: 100,
-        reactNodeType: \\"reactNodeType\\",
-        numberLiteral: 123,
-        stringLiteral: \\"foo\\",
-        trueLiteral: true,
-        falseLiteral: false,
-        stringEnumType: \\"A\\",
-        numberEnumType: 3,
-        arrayType: [\\"arrayType\\"],
-        setType: new Set([\\"setType\\"]),
-        recordType: {},
-        unionType: \\"unionType\\",
-        intersectionType: \\"intersectionType\\",
-        functionType: () => \\"functionType\\",
-        promiseType: Promise.reject(),
-        namedType: {
-          bar: () => \\"namedType.bar\\",
-        },
-      };"
+      "{
+      \\"nullType\\": null,
+      \\"booleanType\\": false,
+      \\"stringType\\": \\"stringType\\",
+      \\"numberType\\": 100,
+      \\"reactNodeType\\": \\"reactNodeType\\",
+      \\"numberLiteral\\": 123,
+      \\"stringLiteral\\": \\"foo\\",
+      \\"trueLiteral\\": true,
+      \\"falseLiteral\\": false,
+      \\"stringEnumType\\": \\"A\\",
+      \\"numberEnumType\\": 3,
+      \\"arrayType\\": [\\"arrayType\\"],
+      \\"setType\\": new Set([\\"setType\\"]),
+      \\"recordType\\": {},
+      \\"unionType\\": \\"unionType\\",
+      \\"intersectionType\\": \\"intersectionType\\",
+      \\"functionType\\": () => (\\"functionType\\"),
+      \\"promiseType\\": Promise.reject(),
+      \\"namedType\\": {
+      \\"bar\\": () => (\\"namedType.bar\\"),
+
+      },
+
+      }"
     `);
   });
 
   test("ignores provided keys", () => {
     expect(
-      generateInvocation(namedType("/foo.tsx:MyComponentProps"), ["foo"], {
+      generateSource(namedType("/foo.tsx:MyComponentProps"), ["foo"], {
         "/foo.tsx:MyComponentProps": {
           type: objectType({
             foo: STRING_TYPE,
@@ -168,9 +177,20 @@ describe("generateInvocation", () => {
         },
       })
     ).toMatchInlineSnapshot(`
-      "properties = {
-        bar: \\"bar\\",
-      };"
+      "{
+      \\"bar\\": \\"bar\\",
+
+      }"
     `);
   });
+
+  function generateSource(
+    propsType: ValueType,
+    providedKeys: string[],
+    collected: CollectedTypes
+  ) {
+    return serializableValueToJavaScript(
+      generateValue(propsType, providedKeys, collected)
+    );
+  }
 });

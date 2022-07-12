@@ -1,12 +1,19 @@
+import {
+  SerializableValue,
+  serializableValueToJavaScript,
+  UNKNOWN,
+} from "@previewjs/serializable-values";
 import type { CollectedTypes, ValueType } from "@previewjs/type-analyzer";
 import { makeAutoObservable } from "mobx";
+import prettier from "prettier";
+import parserBabel from "prettier/parser-babel";
 import { extractFunctionKeys } from "./generators/extract-function-keys";
 import { generateDefaultProps } from "./generators/generate-default-props";
-import { generateInvocation } from "./generators/generate-invocation";
 import { generateTypeDeclarations } from "./generators/generate-type-declarations";
+import { generateValue } from "./generators/generate-value";
 
 export class ComponentProps {
-  private _invocationSource: string | null;
+  private _value: SerializableValue;
 
   constructor(
     private readonly name: string,
@@ -15,14 +22,18 @@ export class ComponentProps {
       all: CollectedTypes;
     },
     private readonly argKeys: string[],
-    cachedInvocationSource: string | null
+    cachedValue: SerializableValue | null
   ) {
-    this._invocationSource = cachedInvocationSource;
+    this._value = cachedValue || UNKNOWN;
     makeAutoObservable(this);
   }
 
-  setInvocationSource(source: string | null) {
-    this._invocationSource = source;
+  setValue(value: SerializableValue | null) {
+    this._value = value || UNKNOWN;
+  }
+
+  get value(): SerializableValue {
+    return this._value;
   }
 
   /**
@@ -50,18 +61,11 @@ export class ComponentProps {
   }
 
   get invocationSource(): string {
-    const source = this._invocationSource;
-    if (source === null) {
-      return this.defaultInvocationSource;
-    }
-    return source;
+    return formatSerializableProps(this._value);
   }
 
   get isDefaultInvocationSource(): boolean {
-    return (
-      !this.invocationSource ||
-      this.invocationSource === this.defaultInvocationSource
-    );
+    return this.invocationSource === this.defaultInvocationSource;
   }
 
   /**
@@ -72,13 +76,38 @@ export class ComponentProps {
    * component's props.
    */
   private get defaultInvocationSource() {
-    return generateInvocation(
-      this.types.props,
-      [
-        ...extractFunctionKeys(this.types.props, this.types.all),
-        ...this.argKeys,
-      ],
-      this.types.all
+    return formatSerializableProps(
+      generateValue(
+        this.types.props,
+        [
+          ...extractFunctionKeys(this.types.props, this.types.all),
+          ...this.argKeys,
+        ],
+        this.types.all
+      )
     );
   }
+}
+
+/**
+ * Generates an invocation source for a specific component.
+ *
+ * Example:
+ * ```
+ * properties = { title: "foo" }
+ * ```
+ */
+export function formatSerializableProps(props: SerializableValue) {
+  let valueSource = serializableValueToJavaScript(props);
+  if (valueSource === "undefined") {
+    valueSource = "{}";
+  }
+  const source = `properties = ${valueSource}`;
+  return prettier
+    .format(source, {
+      parser: "babel",
+      plugins: [parserBabel],
+      filepath: "component.js",
+    })
+    .trim();
 }
