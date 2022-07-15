@@ -133,6 +133,8 @@ export function promise(
 
 export const EMPTY_OBJECT = object([]);
 
+export const EMPTY_MAP = map(EMPTY_OBJECT);
+
 export type SerializableSetValue = {
   kind: "set";
   values: SerializableArrayValue;
@@ -144,6 +146,8 @@ export function set(values: SerializableArrayValue): SerializableSetValue {
     values,
   };
 }
+
+export const EMPTY_SET = set(EMPTY_ARRAY);
 
 export type SerializableStringValue = {
   kind: "string";
@@ -161,6 +165,16 @@ export const UNDEFINED = { kind: "undefined" } as const;
 
 export type SerializableUndefinedValue = typeof UNDEFINED;
 
-export const UNKNOWN = { kind: "unknown" } as const;
+export type SerializableUnknownValue = {
+  kind: "unknown";
+  source?: string;
+};
 
-export type SerializableUnknownValue = typeof UNKNOWN;
+export function unknown(source?: string): SerializableUnknownValue {
+  return {
+    kind: "unknown",
+    source,
+  };
+}
+
+export const UNKNOWN = unknown();
