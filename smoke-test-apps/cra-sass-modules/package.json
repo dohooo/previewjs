@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__smoke-test__cra-sass-modules",
   "license": "MIT",
   "private": true,
   "dependencies": {

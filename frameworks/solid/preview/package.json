@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__preview__solid",
   "dependencies": {
     "solid-js": "1.4.7"
   },

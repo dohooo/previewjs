@@ -1,5 +1,5 @@
 {
-  "name": "vue3",
+  "name": "@previewjs/internal__test__vue3",
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",

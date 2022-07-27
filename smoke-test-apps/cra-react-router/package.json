@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__smoke-test__cra-react-router",
   "license": "MIT",
   "private": true,
   "dependencies": {

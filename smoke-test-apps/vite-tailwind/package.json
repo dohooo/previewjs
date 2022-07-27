@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__smoke-test__vite-tailwind",
   "license": "MIT",
   "scripts": {
     "start": "vite"

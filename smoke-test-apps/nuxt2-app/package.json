@@ -1,5 +1,5 @@
 {
-  "name": "nuxt2-app",
+  "name": "@previewjs/internal__smoke-test__nuxt2-app",
   "version": "^1",
   "private": true,
   "scripts": {

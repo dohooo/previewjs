@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__smoke-test__cra-emotion",
   "license": "MIT",
   "private": true,
   "dependencies": {

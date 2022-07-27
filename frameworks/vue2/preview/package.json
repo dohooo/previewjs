@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__preview__vue2",
   "scripts": {
     "prepare": "rimraf modules && shx mkdir modules && shx cp -r node_modules/vue modules/vue && shx rm -rf modules/vue/packages/compiler-sfc/test"
   },

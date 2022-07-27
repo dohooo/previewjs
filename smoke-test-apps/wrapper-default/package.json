@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__smoke-test__wrapper-default",
   "license": "MIT",
   "private": true,
   "dependencies": {

@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__smoke-test__wrapper-custom",
   "license": "MIT",
   "private": true,
   "scripts": {

@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__smoke-test__vite-vanilla-extract",
   "license": "MIT",
   "private": true,
   "dependencies": {

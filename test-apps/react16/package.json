@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__test__react16",
   "license": "MIT",
   "dependencies": {
     "@types/react": "^16",

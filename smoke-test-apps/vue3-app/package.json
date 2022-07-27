@@ -1,5 +1,5 @@
 {
-  "name": "vue3-app",
+  "name": "@previewjs/internal__smoke-test__vue3-app",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"

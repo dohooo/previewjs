@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__smoke-test__nextjs-12",
   "license": "MIT",
   "private": true,
   "scripts": {

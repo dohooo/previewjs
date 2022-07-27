@@ -1,5 +1,5 @@
 {
-  "name": "vite-template-solid",
+  "name": "@previewjs/internal__smoke-test__solid-ts",
   "scripts": {
     "start": "vite",
     "dev": "vite",

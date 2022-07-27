@@ -1,4 +1,5 @@
 {
+  "name": "@previewjs/internal__smoke-test__material-ui",
   "license": "MIT",
   "private": true,
   "dependencies": {
