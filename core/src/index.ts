@@ -103,6 +103,14 @@ export async function createWorkspace({
     persistedStateManager.update
   );
   router.registerEndpoint(
+    localEndpoints.FindStories,
+    async ({ filePath, componentName }) => {
+      return {
+        stories: [],
+      };
+    }
+  );
+  router.registerEndpoint(
     localEndpoints.ComputeProps,
     async ({ filePath, componentName }) => {
       const component = (
