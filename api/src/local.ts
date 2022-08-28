@@ -22,6 +22,25 @@ export const UpdateState: Endpoint<Partial<PersistedState>, PersistedState> = {
   path: "update-state",
 };
 
+export const FindStories: Endpoint<
+  {
+    filePath: string;
+    componentName: string;
+  },
+  FindStoriesResponse
+> = {
+  path: "find-stories",
+};
+
+export type FindStoriesResponse = {
+  stories: Story[];
+};
+
+export type Story = {
+  name: string;
+  componentId: string;
+};
+
 export const ComputeProps: Endpoint<
   {
     filePath: string;
