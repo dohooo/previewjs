@@ -89,6 +89,7 @@ export const load: RendererLoader = async ({
       components: { ...decorated.components, story: component },
     };
   }, RenderComponent);
+  console.error(Decorated);
   const previews =
     typeof RenderComponent.previews === "function"
       ? RenderComponent.previews()
