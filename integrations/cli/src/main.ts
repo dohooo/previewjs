@@ -42,10 +42,15 @@ program
         page,
         port: 3123,
       });
-      // TODO: Find components.
-      for (const component of components) {
-        await preview.show(component.componentId);
-        await preview.iframe.takeScreenshot(path.join(__dirname, "foo.png"));
+      for (const componentId of await preview.detectComponents()) {
+        await preview.show(componentId);
+        await preview.iframe.takeScreenshot(
+          path.join(
+            __dirname,
+            "__screenshots__",
+            componentId.split(":")[1] + ".png"
+          )
+        );
       }
     }
 

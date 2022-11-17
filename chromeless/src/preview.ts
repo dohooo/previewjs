@@ -1,4 +1,4 @@
-import { RPCs } from "@previewjs/api";
+import { generateComponentId, RPCs } from "@previewjs/api";
 import type { FrameworkPluginFactory } from "@previewjs/core";
 import {
   generateDefaultProps,
@@ -101,6 +101,23 @@ export async function startPreview({
           path: destinationPath,
         });
       },
+    },
+    async detectComponents(): Promise<string[]> {
+      const response = await workspace.localRpc(RPCs.DetectComponents, {});
+      const componentIds: string[] = [];
+      for (const [filePath, fileComponents] of Object.entries(
+        response.components
+      )) {
+        for (const component of fileComponents) {
+          componentIds.push(
+            generateComponentId({
+              currentFilePath: filePath,
+              name: component.name,
+            })
+          );
+        }
+      }
+      return componentIds;
     },
     async show(componentId: string, propsAssignmentSource?: string) {
       const filePath = componentId.split(":")[0]!;
