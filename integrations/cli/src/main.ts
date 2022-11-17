@@ -43,14 +43,21 @@ program
         port: 3123,
       });
       for (const componentId of await preview.detectComponents()) {
-        await preview.show(componentId);
-        await preview.iframe.takeScreenshot(
-          path.join(
-            __dirname,
-            "__screenshots__",
-            componentId.split(":")[1] + ".png"
-          )
-        );
+        try {
+          await preview.show(componentId);
+          await preview.iframe.takeScreenshot(
+            path.join(
+              __dirname,
+              "__screenshots__",
+              componentId.split(":")[1] + ".png"
+            )
+          );
+          console.log(`✅ ${componentId}`);
+        } catch (e: any) {
+          console.log(`❌ ${componentId}`);
+          // TODO: Show if verbose on.
+          // console.warn(e.message);
+        }
       }
     }
 
